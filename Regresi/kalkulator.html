@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,7 +12,6 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -21,10 +19,9 @@
             align-items: center;
             height: 100vh;
             background-color: #f4f4f9;
-            overflow: hidden; /* Prevent scrolling on the main body */
+            overflow: hidden;
         }
 
-        /* Container Styling */
         .container {
             width: 100vw;
             height: 100vh;
@@ -36,10 +33,9 @@
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            overflow-y: auto; /* Enable vertical scrolling if content overflows */
+            overflow-y: auto;
         }
 
-        /* Button Styling */
         button {
             margin: 10px;
             padding: 10px 20px;
@@ -54,7 +50,6 @@
             background-color: #0056b3;
         }
 
-        /* Input and Table Styling */
         input {
             margin: 5px 0;
             padding: 5px;
@@ -69,60 +64,68 @@
             margin: 20px 0;
         }
 
-        table, th, td {
-            border: 1px solid black;
-        }
-
         th, td {
+            border: 1px solid black;
             padding: 10px;
             text-align: center;
         }
 
-        /* Scrollable Table */
         .scrollable-table-container {
             overflow-x: auto;
             width: 100%;
         }
 
         .scrollable-table-container table {
-            min-width: 1000px; /* Minimum width for wide tables */
+            min-width: 1000px;
         }
 
-        /* Penyelesaian Section */
         .penyelesaian {
             margin-top: 20px;
             text-align: left;
             font-size: 14px;
             line-height: 1.5;
-            display: none; /* Hidden by default */
+            display: none;
         }
 
         .penyelesaian h3 {
             margin-bottom: 10px;
         }
 
-        /* Chart Styling */
         #regression-chart {
             width: 100%;
-            max-width: 800px; /* Lebar maksimum */
-            aspect-ratio: 16 / 9; /* Rasio aspek 16:9 */
+            max-width: 800px;
+            aspect-ratio: 16 / 9;
             margin: 20px auto;
         }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
             }
-
             input {
                 width: 90%;
             }
         }
+
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 10px 20px;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            background-color: #cc0000;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div id="calculator" class="container">
         <h1>Kalkulator Analisis Regresi</h1>
         <div id="password-prompt" style="display: block;">
             <p>Masukkan Password:</p>
@@ -135,9 +138,9 @@
             <input type="number" id="n" min="2" required><br>
             <label for="decimal">Jumlah Angka di Belakang Koma:</label>
             <input type="number" id="decimal" min="0" required><br>
-            <label for="varX">Nama Variabel X (Variabel yang Mempengaruhi):</label>
+            <label for="varX">Nama Variabel X:</label>
             <input type="text" id="varX" placeholder="Contoh: Jumlah Jam Belajar" required><br>
-            <label for="varY">Nama Variabel Y (Variabel yang Dipengaruhi):</label>
+            <label for="varY">Nama Variabel Y:</label>
             <input type="text" id="varY" placeholder="Contoh: Nilai Ujian" required><br>
             <button onclick="generateInputTable()">Lanjutkan</button>
             <div id="data-input"></div>
@@ -147,6 +150,29 @@
     </div>
 
     <script>
+        function saveCurrentPage(page) {
+            localStorage.setItem('currentPage', page);
+        }
+
+        function loadSavedPage() {
+            const currentPage = localStorage.getItem('currentPage');
+            if (currentPage === 'calculator') {
+                openCalculator();
+            } else {
+                document.getElementById('calculator').style.display = 'block';
+            }
+        }
+
+        function openCalculator() {
+            saveCurrentPage('calculator');
+            document.getElementById('calculator').style.display = 'block';
+        }
+
+        function goToMainMenu() {
+            saveCurrentPage('main-menu');
+            window.location.href = "index.html";
+        }
+
         function verifyPassword() {
             const password = document.getElementById('password-input').value;
             if (password === 'JUJUR') {
@@ -163,43 +189,21 @@
             const varY = document.getElementById('varY').value;
             const container = document.getElementById('data-input');
             container.innerHTML = '';
-
-            // Buat tabel input
-            let tableHTML = `
-                <table class="input-table">
-                    <tr>
-                        <th>No.</th>
-                        <th>${varX}</th>
-                        <th>${varY}</th>
-                    </tr>
-            `;
-
+            let tableHTML = `<table class="input-table"><tr><th>No.</th><th>${varX}</th><th>${varY}</th></tr>`;
             for (let i = 1; i <= n; i++) {
-                tableHTML += `
-                    <tr>
-                        <td>${i}</td>
-                        <td><input type="number" id="x${i}" step="any"></td>
-                        <td><input type="number" id="y${i}" step="any"></td>
-                    </tr>
-                `;
+                tableHTML += `<tr><td>${i}</td><td><input type="number" id="x${i}" step="any"></td><td><input type="number" id="y${i}" step="any"></td></tr>`;
             }
-
             tableHTML += `</table>`;
             container.innerHTML = tableHTML;
-
             document.getElementById('calculate-btn').style.display = 'block';
         }
 
-        function formatNumber(value, decimalPlaces) {
-            // Jika nilai adalah bilangan bulat, tampilkan tanpa desimal
-            if (Number.isInteger(value)) {
-                return value.toString();
-            }
-            // Format angka dengan jumlah desimal yang ditentukan
-            const fixedValue = value.toFixed(decimalPlaces).replace('.', ','); // Ganti titik dengan koma
-            // Hapus trailing zeros dan koma jika tidak diperlukan
-            const trimmedValue = fixedValue.replace(/([.,]0+|0+)$/, '');
-            return trimmedValue;
+        // Fungsi baru: Format angka tanpa trailing zero
+        function formatNumber(num, decimal) {
+            return parseFloat(num.toFixed(decimal)).toLocaleString('id-ID', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: decimal
+            });
         }
 
         function calculateRegression() {
@@ -210,17 +214,14 @@
 
             let xValues = [];
             let yValues = [];
-
             for (let i = 1; i <= n; i++) {
                 xValues.push(parseFloat(document.getElementById(`x${i}`).value));
                 yValues.push(parseFloat(document.getElementById(`y${i}`).value));
             }
 
-            // Hitung rata-rata
             const xBar = xValues.reduce((a, b) => a + b, 0) / n;
             const yBar = yValues.reduce((a, b) => a + b, 0) / n;
 
-            // Hitung SSxx, SSyy, SSxy
             let ssxx = 0, ssyy = 0, ssxy = 0;
             for (let i = 0; i < n; i++) {
                 ssxx += Math.pow(xValues[i] - xBar, 2);
@@ -228,17 +229,11 @@
                 ssxy += (xValues[i] - xBar) * (yValues[i] - yBar);
             }
 
-            // Hitung nilai b dan a
             const b = ssxy / ssxx;
             const a = yBar - b * xBar;
-
-            // Koefisien Korelasi
             const r = ssxy / Math.sqrt(ssxx * ssyy);
-
-            // Koefisien Determinasi
             const rSquared = Math.pow(r, 2);
 
-            // Tampilkan hasil
             const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = `
                 <h2>Hasil Perhitungan</h2>
@@ -273,8 +268,8 @@
                 <div id="penyelesaian" class="penyelesaian">
                     <h3>Langkah-Langkah Penyelesaian</h3>
                     <p><strong>1. Menghitung Rata-Rata (X̄ dan Ȳ):</strong></p>
-                    <p>X̄ = ΣX / n = (${xValues.join(' + ')}) / ${n} = ${formatNumber(xBar, decimal)}</p>
-                    <p>Ȳ = ΣY / n = (${yValues.join(' + ')}) / ${n} = ${formatNumber(yBar, decimal)}</p>
+                    <p>X̄ = ΣX / n = (${xValues.map(x => formatNumber(x, decimal)).join(' + ')}) / ${n} = ${formatNumber(xBar, decimal)}</p>
+                    <p>Ȳ = ΣY / n = (${yValues.map(y => formatNumber(y, decimal)).join(' + ')}) / ${n} = ${formatNumber(yBar, decimal)}</p>
                     <p><strong>2. Menghitung SSxx, SSyy, dan SSxy:</strong></p>
                     <p>SSxx = Σ(X - X̄)² = ${formatNumber(ssxx, decimal)}</p>
                     <p>SSyy = Σ(Y - Ȳ)² = ${formatNumber(ssyy, decimal)}</p>
@@ -291,9 +286,7 @@
                 </div>
                 <canvas id="regression-chart"></canvas>
             `;
-
-            // Render grafik menggunakan Chart.js
-            renderRegressionChart(xValues, yValues, a, b, varX, varY);
+            renderRegressionChart(xValues, yValues, a, b);
         }
 
         function showPenyelesaian() {
@@ -307,13 +300,9 @@
             }
         }
 
-        function renderRegressionChart(xValues, yValues, a, b, varX, varY) {
+        function renderRegressionChart(xValues, yValues, a, b) {
             const ctx = document.getElementById('regression-chart').getContext('2d');
-
-            // Hitung garis regresi
             const regressionLine = xValues.map(x => a + b * x);
-
-            // Buat chart
             new Chart(ctx, {
                 type: 'scatter',
                 data: {
@@ -340,37 +329,24 @@
                     responsive: true,
                     maintainAspectRatio: true,
                     scales: {
-                        x: {
-                            type: 'linear',
-                            position: 'bottom',
-                            title: {
-                                display: true,
-                                text: `${varX} (X)`
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: `${varY} (Y)`
-                            }
-                        }
+                        x: { type: 'linear', position: 'bottom', title: { display: true, text: 'X' }},
+                        y: { title: { display: true, text: 'Y' }}
                     },
                     plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                        },
+                        legend: { display: true, position: 'top' },
                         tooltip: {
                             callbacks: {
-                                label: function (context) {
-                                    return `(${context.parsed.x}, ${context.parsed.y})`;
-                                }
+                                label: context => `(${context.parsed.x}, ${context.parsed.y})`
                             }
                         }
                     }
                 }
             });
         }
+
+        window.onload = function () {
+            loadSavedPage();
+        };
     </script>
 </body>
 </html>
