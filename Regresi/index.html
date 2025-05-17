@@ -5,11 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Regresi</title>
     <style>
-        /* Menyematkan font Linotte-SemiBold */
+        /* Menyematkan semua jenis font Linotte */
+        @font-face {
+            font-family: 'Linotte';
+            src: url('fonts/Linotte-Regular.otf') format('opentype');
+            font-weight: 400; /* Regular */
+            font-style: normal;
+        }
         @font-face {
             font-family: 'Linotte';
             src: url('fonts/Linotte-SemiBold.otf') format('opentype');
             font-weight: 600; /* Semi-bold */
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Linotte';
+            src: url('fonts/Linotte-Light.otf') format('opentype');
+            font-weight: 300; /* Light */
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Linotte';
+            src: url('fonts/Linotte-Heavy.otf') format('opentype');
+            font-weight: 800; /* Heavy */
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Linotte';
+            src: url('fonts/Linotte-Bold.otf') format('opentype');
+            font-weight: 700; /* Bold */
             font-style: normal;
         }
 
@@ -30,11 +54,21 @@
             overflow: hidden; /* Mencegah scroll saat animasi */
         }
         h1 {
-            font-size: 1.8rem; /* Ukuran font lebih besar untuk judul */
-            font-weight: 600; /* Bold untuk judul */
+            font-size: 2rem; /* Ukuran font lebih besar untuk judul */
+            font-weight: 600; /* Semi-bold */
             margin-bottom: 20px; /* Memberikan jarak antara teks "Pilih Menu" dan kontainer tombol */
             color: #333; /* Warna teks lebih gelap untuk kontras */
             text-align: center; /* Teks rata tengah */
+        }
+        h2 {
+            font-size: 1.5rem; /* Subjudul menggunakan bold */
+            font-weight: 700; /* Bold */
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 1rem; /* Paragraf menggunakan regular */
+            font-weight: 400; /* Regular */
+            color: #555; /* Warna abu-abu untuk paragraf */
         }
         .container {
             text-align: center;
@@ -59,7 +93,7 @@
             border-radius: 5px;
             cursor: pointer;
             font-family: 'Linotte', sans-serif; /* Pastikan tombol juga menggunakan font Linotte */
-            font-weight: 600; /* Menggunakan font semi-bold */
+            font-weight: 600; /* Semi-bold */
             transition: background-color 0.3s ease, transform 0.3s ease; /* Animasi hover */
         }
         button:hover {
@@ -106,7 +140,7 @@
             color: #aaa;
             float: right;
             font-size: 28px;
-            font-weight: bold;
+            font-weight: 800; /* Heavy */
             cursor: pointer;
             transition: color 0.3s ease; /* Animasi hover */
         }
