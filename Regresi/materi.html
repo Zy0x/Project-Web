@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Materi Statistika Regresi</title>
+    <!-- Tambahkan Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins :wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <style>
         /* Global Styles */
         * {
@@ -13,52 +20,104 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            font-family: 'Poppins', sans-serif; /* Menggunakan font Poppins */
+            background-color: #f9fafb;
             padding: 20px;
+            line-height: 1.6;
         }
 
         .container {
             max-width: 800px;
             margin: 0 auto;
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            opacity: 0; /* Awalnya tidak terlihat */
+            transform: translateY(20px); /* Awalnya sedikit ke bawah */
+            transition: all 0.5s ease; /* Animasi untuk opacity dan transform */
+        }
+        .container.active {
+            opacity: 1; /* Menjadi terlihat */
+            transform: translateY(0); /* Kembali ke posisi normal */
         }
 
         h1 {
             text-align: center;
+            font-family: "Josefin Sans", sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: #333;
+        }
+        
+        h2 {
+            text-align: center;
+            font-family: "Josefin Sans", sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: #333;
             margin-bottom: 20px;
         }
-
+        
         iframe {
             width: 100%;
             height: 500px;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        iframe:hover {
+            transform: scale(1.02); /* Efek zoom kecil saat hover */
         }
 
         a {
             display: block;
+            font-family: "Lexend", sans-serif;
             text-align: center;
-            margin-top: 10px;
+            margin-top: 20px;
+            font-size: 1rem;
+            font-weight: 500;
             color: #007bff;
             text-decoration: none;
+            transition: color 0.3s ease;
         }
 
         a:hover {
+            color: #0056b3;
             text-decoration: underline;
+        }
+
+        /* Styling untuk footer */
+        footer {
+            text-align: center;
+            font-family: "Montserrat", sans-serif;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #666;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Materi Statistika Regresi</h1>
-        <div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%; padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden; border-radius: 8px; will-change: transform;">
-            <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0; margin: 0;" src="https://www.canva.com/design/DAGmvTogSI4/u3XrH33V2fOe0vfKpzakmQ/view?embed " allowfullscreen="allowfullscreen" allow="fullscreen"></iframe>
+        <h1>Materi</h1>
+        <h2>Statistika Regresi</h2>
+        <div style="position: relative; width: 100%; height: 0; padding-top: 56.25%; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
+            <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none;" src="https://www.canva.com/design/DAGmvTogSI4/u3XrH33V2fOe0vfKpzakmQ/view?embed " allowfullscreen="allowfullscreen" allow="fullscreen"></iframe>
         </div>
-        <a href="https://www.canva.com/design/DAGmvTogSI4/u3XrH33V2fOe0vfKpzakmQ/view?utm_content=DAGmvTogSI4&utm_campaign=designshare&utm_medium=embeds&utm_source=link " target="_blank" rel="noopener">STATISTIKA REGRESI</a> oleh 'Ali Ridho
+        <a href="https://www.canva.com/design/DAGmvTogSI4/u3XrH33V2fOe0vfKpzakmQ/view?utm_content=DAGmvTogSI4&utm_campaign=designshare&utm_medium=embeds&utm_source=link " target="_blank" rel="noopener">STATISTIKA REGRESI</a>
+        <footer>
+            Materi ini dibuat oleh 'Ali Ridho <br>Mahasiswa Pendidikan Matematika (FKIP) Universitas Lambung Mangkurat.</br>
+        </footer>
     </div>
+
+    <script>
+        // Animasi container saat halaman dimuat
+        window.onload = function() {
+            const container = document.querySelector('.container');
+            container.classList.add('active');
+        };
+    </script>
 </body>
 </html>
