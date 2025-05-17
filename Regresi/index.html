@@ -22,11 +22,19 @@
         body {
             font-family: 'Linotte', sans-serif; /* Menggunakan font Linotte */
             display: flex;
+            flex-direction: column; /* Mengatur tata letak vertikal */
             justify-content: center;
             align-items: center;
             height: 100vh;
             background-color: #f4f4f9;
             overflow: hidden; /* Mencegah scroll saat animasi */
+        }
+        h1 {
+            font-size: 1.8rem; /* Ukuran font lebih besar untuk judul */
+            font-weight: 600; /* Bold untuk judul */
+            margin-bottom: 20px; /* Memberikan jarak antara teks "Pilih Menu" dan kontainer tombol */
+            color: #333; /* Warna teks lebih gelap untuk kontras */
+            text-align: center; /* Teks rata tengah */
         }
         .container {
             text-align: center;
@@ -41,15 +49,6 @@
         .container.active {
             opacity: 1; /* Menjadi terlihat */
             transform: translateY(0); /* Kembali ke posisi normal */
-        }
-        h1 {
-            font-size: 1.8rem; /* Ukuran font lebih besar untuk judul */
-            font-weight: 600; /* Bold untuk judul */
-            margin-bottom: 20px; /* Memberikan jarak antara teks "Pilih Menu" dan tombol */
-            color: #333; /* Warna teks lebih gelap untuk kontras */
-        }
-        h2 {
-            margin-bottom: 20px;
         }
         button {
             margin: 10px;
@@ -117,9 +116,11 @@
     </style>
 </head>
 <body>
+    <!-- Judul Pilih Menu -->
+    <h1>Analisis Regresi Linear</h1>
+
     <!-- Main Content -->
     <div class="container">
-        <h1>Pilih Menu</h1>
         <button onclick="window.location.href='materi.html'">Materi</button>
         <button onclick="window.location.href='kalkulator.html'">Kalkulator</button>
         <!-- Tombol Tentang di tengah -->
@@ -131,7 +132,7 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2>Tentang Pembuat</h2>
-            <p>Website ini dibuat oleh Ali Ridho, Mahasiswa FKIP Pendidikan Matematika Universitas Lambung Mangkurat.</p>
+            <p>Website ini dibuat oleh 'Ali Ridho, Mahasiswa FKIP Pendidikan Matematika Universitas Lambung Mangkurat.</p>
         </div>
     </div>
 
