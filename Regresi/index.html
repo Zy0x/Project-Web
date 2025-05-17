@@ -77,18 +77,21 @@
         h2 {
             margin-bottom: 10px;
         }
-
+        
         .container {
             text-align: center;
             padding: 20px;
-            background: white;
+            background: rgba(255, 255, 255, 0.15); /* latar belakang transparan dengan sedikit putih */
             border-radius: 10px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px); /* efek kaca */
+            -webkit-backdrop-filter: blur(10px); /* kompatibilitas Safari */
+            border: 1px solid rgba(255, 255, 255, 0.2); /* garis pinggir halus */
             opacity: 0;
             transform: translateY(20px);
             transition: all 0.5s ease;
         }
-
+        
         .container.active {
             opacity: 1;
             transform: translateY(0);
