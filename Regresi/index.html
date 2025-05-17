@@ -5,30 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Regresi</title>
     <style>
+        /* Menyematkan font Linotte-SemiBold */
+        @font-face {
+            font-family: 'Linotte';
+            src: url('fonts/Linotte-SemiBold.otf') format('opentype');
+            font-weight: 600; /* Semi-bold */
+            font-style: normal;
+        }
+
         /* Global Styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Linotte', sans-serif; /* Menggunakan font Linotte */
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             background-color: #f4f4f9;
+            overflow: hidden; /* Mencegah scroll saat animasi */
         }
-
         .container {
             text-align: center;
             padding: 20px;
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            opacity: 0; /* Awalnya tidak terlihat */
+            transform: translateY(20px); /* Awalnya sedikit ke bawah */
+            transition: all 0.5s ease; /* Animasi untuk opacity dan transform */
         }
-
+        .container.active {
+            opacity: 1; /* Menjadi terlihat */
+            transform: translateY(0); /* Kembali ke posisi normal */
+        }
+        h1 {
+            font-size: 1.8rem; /* Ukuran font lebih besar untuk judul */
+            font-weight: 600; /* Bold untuk judul */
+            margin-bottom: 20px; /* Memberikan jarak antara teks "Pilih Menu" dan tombol */
+            color: #333; /* Warna teks lebih gelap untuk kontras */
+        }
         button {
             margin: 10px;
             padding: 10px 20px;
@@ -37,18 +56,120 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-family: 'Linotte', sans-serif; /* Pastikan tombol juga menggunakan font Linotte */
+            font-weight: 600; /* Menggunakan font semi-bold */
+            transition: background-color 0.3s ease, transform 0.3s ease; /* Animasi hover */
         }
-
         button:hover {
             background-color: #0056b3;
+            transform: scale(1.05); /* Efek zoom kecil saat hover */
+        }
+
+        /* Styling untuk tombol "Tentang" agar berada di tengah */
+        .about-button {
+            display: block;
+            margin: 10px auto 0 auto; /* Margin atas dan bawah, serta otomatis rata tengah */
+            width: fit-content; /* Lebar sesuai konten */
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            opacity: 0; /* Awalnya tidak terlihat */
+            transform: scale(0.8); /* Awalnya lebih kecil */
+            transition: all 0.3s ease; /* Animasi untuk opacity dan scale */
+        }
+        .modal-content.active {
+            opacity: 1; /* Menjadi terlihat */
+            transform: scale(1); /* Kembali ke ukuran normal */
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease; /* Animasi hover */
+        }
+        .close:hover {
+            color: black;
         }
     </style>
 </head>
 <body>
+    <!-- Main Content -->
     <div class="container">
         <h1>Pilih Menu</h1>
         <button onclick="window.location.href='materi.html'">Materi</button>
         <button onclick="window.location.href='kalkulator.html'">Kalkulator</button>
+        <!-- Tombol Tentang di tengah -->
+        <button id="infoButton" class="about-button">Tentang</button>
     </div>
+
+    <!-- Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Tentang Pembuat</h2>
+            <p>Website ini dibuat oleh Ali Ridho, Mahasiswa FKIP Pendidikan Matematika Universitas Lambung Mangkurat.</p>
+        </div>
+    </div>
+
+    <script>
+        // Animasi container saat halaman dimuat
+        window.onload = function() {
+            const container = document.querySelector('.container');
+            container.classList.add('active');
+        };
+
+        // Get the modal and button elements
+        var modal = document.getElementById("myModal");
+        var btn = document.getElementById("infoButton");
+        var span = document.getElementsByClassName("close")[0];
+        var modalContent = document.querySelector('.modal-content');
+
+        // Open the modal when the "Tentang" button is clicked
+        btn.onclick = function() {
+            modal.style.display = "block";
+            setTimeout(() => {
+                modalContent.classList.add('active'); // Animasi fade-in dan scale-up
+            }, 10); // Delay kecil untuk memastikan modal sudah terlihat
+        };
+
+        // Close the modal when the close button (x) is clicked
+        span.onclick = function() {
+            modalContent.classList.remove('active'); // Animasi fade-out dan scale-down
+            setTimeout(() => {
+                modal.style.display = "none"; // Sembunyikan modal setelah animasi selesai
+            }, 300); // Durasi animasi
+        };
+
+        // Close the modal if the user clicks anywhere outside of it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modalContent.classList.remove('active'); // Animasi fade-out dan scale-down
+                setTimeout(() => {
+                    modal.style.display = "none"; // Sembunyikan modal setelah animasi selesai
+                }, 300); // Durasi animasi
+            }
+        };
+    </script>
 </body>
 </html>
