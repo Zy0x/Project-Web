@@ -120,13 +120,24 @@
 
         /* Styling untuk logo */
         .logo {
-            position: fixed;
-            top: 10px;
-            width: 50px;
-            height: auto;
-            z-index: 2;
-            transition: transform 0.3s ease;
-        }
+        position: fixed;
+        top: 10px;
+        width: 50px;
+        height: auto;
+        z-index: 2;
+        transition: all 0.3s ease;
+        border-radius: 12px; /* agar logo terlihat modern, bisa diubah jadi 50% untuk bulat penuh */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* bayangan lembut */
+        background-color: #fff; /* jika logo punya latar belakang putih atau sejenisnya */
+        padding: 5px; /* agar logo tidak terlalu mepet */
+        object-fit: contain;
+    }
+
+/* Efek saat hover */
+.logo:hover {
+    transform: scale(1.1) rotate(2deg);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
 
         .left-logo {
             left: 10px;
