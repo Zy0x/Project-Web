@@ -270,6 +270,7 @@
         localStorage.removeItem('isLoggedIn');
         window.location.href = 'login.html';
     }
+
     // 🔔 Event Listener Validasi Real-Time Input "n"
     document.getElementById('n').addEventListener('input', function () {
         const nInput = document.getElementById('n');
@@ -544,6 +545,20 @@
             }
         });
     }
+    let isDataModified = false;
+
+    // Contoh: Deteksi input pengguna
+    document.getElementById('n').addEventListener('input', () => {
+        isDataModified = true;
+    });
+
+    window.addEventListener('beforeunload', function (e) {
+        if (isDataModified) {
+            const message = 'Anda yakin ingin meninggalkan halaman ini? Data yang belum disimpan mungkin akan hilang.';
+            e.preventDefault();
+            e.returnValue = message;
+        }
+    });
 </script>
 </body>
 </html>
