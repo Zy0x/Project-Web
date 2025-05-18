@@ -323,16 +323,21 @@
         container.innerHTML = tableHTML;
         document.getElementById('calculate-btn').style.display = 'block';
     }
-
+    
     function formatNumber(num, decimal) {
         let number = parseFloat(num);
+        if (isNaN(number)) return '';
+    
+        // Jika decimal tidak ditentukan atau negatif, gunakan semua desimal valid
         if (isNaN(decimal) || decimal === null || decimal < 0) {
-            // Jika decimal kosong/tidak valid, tampilkan semua angka
-            return number.toLocaleString('id-ID');
-        } else {
-            // Jika ada nilai desimal, bulatkan sesuai input
-            return number.toFixed(decimal).replace('.', ',').replace(/\.?0+$/, '');
+            return number.toString().replace('.', ',');
         }
+    
+        // Bulatkan ke jumlah desimal yang diminta
+        let fixedStr = number.toFixed(decimal);
+    
+        // Ganti titik ke koma dan hapus .0 / .00 / .000 jika bulat
+        return fixedStr.replace('.', ',').replace(/,0+$/, '');
     }
 
     function calculateRegression() {
