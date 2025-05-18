@@ -1,12 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Kalkulator Analisis Regresi</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js "></script>
+
     <style>
-        /* Global Styles */
+        /* Reset */
+        @font-face {
+            font-family: 'Lexend';
+            src: url('assets/fonts/Lexend-VariableFont_wght.ttf') format('opentype');
+        }
+        @font-face {
+            font-family: 'Josefin Sans';
+            src: url('assets/fonts/JosefinSans-VariableFont_wght.ttf') format('opentype');
+        }
+        @font-face {
+            font-family: Montserrat;
+            src: url('assets/fonts/Montserrat-VariableFont_wght.ttf') format('opentype');
+        }
         * {
             margin: 0;
             padding: 0;
@@ -14,339 +27,505 @@
         }
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             background-color: #f4f4f9;
-            overflow: hidden;
-        }
-
-        .container {
-            width: 100vw;
-            height: 100vh;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
             padding: 20px;
+            font-family: Montserrat, sans-serrif;
+        }
+        .container {
+            width: 100%;
+            max-width: 900px;
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
             overflow-y: auto;
         }
-
+        h1 {
+            font-family: Lexend, sans-serif;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            color: #333;
+        }
+        h2, h3 {
+            font-family: Josefin Sans, sans-serif;
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 1em;
+        }
+        input[type="number"],
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px 12px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            font-family: Montserrat, sans-serif;
+        }
         button {
-            margin: 10px;
-            padding: 10px 20px;
+            margin-top: 20px;
+            padding: 12px 20px;
             background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
+            font-size: 1em;
+            width: 100%;
+            transition: background-color 0.3s ease;
+            font-family: Montserrat, sans-serif;
         }
-
         button:hover {
             background-color: #0056b3;
         }
-
-        input {
-            margin: 5px 0;
-            padding: 5px;
-            width: 80%;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
         table {
-            border-collapse: collapse;
             width: 100%;
-            margin: 20px 0;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
-
-        th, td {
+        th {
             border: 1px solid black;
             padding: 10px;
             text-align: center;
         }
-
+        td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .deviation-row {
+            background-color: #e0f7fa; /* Warna biru muda */
+            font-weight: bold;
+        }
         .scrollable-table-container {
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 15px;
+            width: 100%;
+        }
+        .penyelesaian {
+            margin-top: 25px;
+            font-size: 14px;
+            line-height: 1.6;
+            display: none;
+        }
+        .penyelesaian h3 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        .result-card {
+            background-color: #ffffff;
+            border-left: 5px solid #007bff;
+            padding: 20px;
+            margin-top: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .result-card h2 {
+            color: #2c3e50;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            font-family: 'Lexend', sans-serif;
+        }
+
+        .result-card p {
+            font-size: 1em;
+            line-height: 1.6;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .equation {
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .equation-wrapper {
+            position: relative;
+            display: inline-block;
             width: 100%;
         }
 
-        .scrollable-table-container table {
-            min-width: 1000px;
+        .equation-highlight {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px 20px;
+            margin: 20px 0;
+            color: #856404;
+            font-weight: bold;
+            font-family: 'Josefin Sans', sans-serif;
+            font-size: clamp(1.2em, 4vw, 2em);
+            white-space: nowrap;
+            overflow-x: auto; /* Aktifkan scroll horizontal */
+            text-align: center;
+            display: block;
+            max-width: 100%;
+        }
+        .equation-highlight::-webkit-scrollbar {
+            height: 6px;
         }
 
-        .penyelesaian {
-            margin-top: 20px;
-            text-align: left;
-            font-size: 14px;
-            line-height: 1.5;
+        .equation-highlight::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .equation-highlight::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+        .expand-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #007bff;
+            font-size: 0.9em;
+            cursor: pointer;
             display: none;
         }
 
-        .penyelesaian h3 {
-            margin-bottom: 10px;
+        .correlation {
+            color: #2e7d32;
+            font-weight: bold;
         }
 
+        .determination {
+            color: #6a1b9a;
+            font-weight: bold;
+        }
         #regression-chart {
             width: 100%;
-            max-width: 800px;
+            height: auto;
             aspect-ratio: 16 / 9;
-            margin: 20px auto;
+            margin-top: 25px;
+            max-height: 500px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #fafafa;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 600px) {
             .container {
-                padding: 10px;
+                padding: 15px;
             }
-            input {
-                width: 90%;
+            input,
+            button {
+                font-size: 0.95em;
             }
-        }
-
-        .back-button {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            padding: 10px 20px;
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .back-button:hover {
-            background-color: #cc0000;
         }
     </style>
 </head>
 <body>
-    <div id="calculator" class="container">
-        <h1>Kalkulator Analisis Regresi</h1>
-        <div id="password-prompt" style="display: block;">
-            <p>Masukkan Password:</p>
-            <input type="password" id="password-input">
-            <button onclick="verifyPassword()">Submit</button>
-            <p id="error-message" style="color: red;"></p>
-        </div>
-        <div id="calculator-form" style="display: none;">
-            <label for="n">Banyak Data (n):</label>
-            <input type="number" id="n" min="2" required><br>
-            <label for="decimal">Jumlah Angka di Belakang Koma:</label>
-            <input type="number" id="decimal" min="0" required><br>
-            <label for="varX">Nama Variabel X:</label>
-            <input type="text" id="varX" placeholder="Contoh: Jumlah Jam Belajar" required><br>
-            <label for="varY">Nama Variabel Y:</label>
-            <input type="text" id="varY" placeholder="Contoh: Nilai Ujian" required><br>
-            <button onclick="generateInputTable()">Lanjutkan</button>
-            <div id="data-input"></div>
-            <button id="calculate-btn" style="display: none;" onclick="calculateRegression()">Hitung</button>
-            <div id="results"></div>
-        </div>
+<div id="calculator" class="container">
+    <h1>Kalkulator Analisis Regresi</h1>
+
+    <!-- Password Prompt -->
+    <div id="password-prompt" style="display: block;">
+        <p>Masukkan Password:</p>
+        <input type="password" id="password-input" />
+        <button onclick="verifyPassword()">Submit</button>
+        <p id="error-message" style="color: red;"></p>
+        <p style="font-size: 0.7em; color: #656565; margin-top: 10px;">*Catatan: Password tersedia di dalam materi pembelajaran.</p>
     </div>
 
-    <script>
-        function saveCurrentPage(page) {
-            localStorage.setItem('currentPage', page);
+    <!-- Calculator Form -->
+    <div id="calculator-form" style="display: none;">
+        <label for="n">Banyak Data (n)</label>
+        <input type="number" id="n" min="1" required />
+        <small id="error-n" style="color: red; font-size: 0.9em; display: none;">
+            Minimal data yang diperlukan adalah 2.
+        </small>
+        <label for="decimal">Jumlah Angka di Belakang Koma</label>
+        <input type="number" id="decimal" min="0" />
+        <small style="color: #666; font-size: 0.7em;">*Kosongkan jika ingin menampilkan seluruh angka di belakang koma</small>
+        <label for="varX">Nama Variabel X</label>
+        <input type="text" id="varX" placeholder="Contoh: Jumlah Jam Belajar" required />
+        <small style="color: #666; font-size: 0.7em;">*Variabel yang mempengaruhi</small>
+        <label for="varY">Nama Variabel Y</label>
+        <input type="text" id="varY" placeholder="Contoh: Nilai Ujian" required />
+        <small style="color: #666; font-size: 0.7em;">*Variabel yang dipengaruhi</small>
+        <button onclick="generateInputTable()">Lanjutkan</button>
+        <div id="data-input"></div>
+        <button id="calculate-btn" style="display: none;" onclick="calculateRegression()">Hitung</button>
+        <div id="results" style="margin-top: 30px;"></div>
+    </div>
+</div>
+
+<script>
+    function verifyPassword() {
+        const password = document.getElementById('password-input').value;
+        if (password === 'JUJUR') {
+            document.getElementById('password-prompt').style.display = 'none';
+            document.getElementById('calculator-form').style.display = 'block';
+        } else {
+            document.getElementById('error-message').innerText = 'Password salah. Coba lagi.';
+        }
+    }
+
+    // 🔔 Event Listener Validasi Real-Time Input "n"
+    document.getElementById('n').addEventListener('input', function () {
+        const nInput = document.getElementById('n');
+        const errorMsg = document.getElementById('error-n');
+
+        const n = parseInt(nInput.value);
+
+        if (isNaN(n) || n < 2) {
+            errorMsg.style.display = 'block';
+        } else {
+            errorMsg.style.display = 'none';
+        }
+    });
+
+    function generateInputTable() {
+        const nInput = document.getElementById('n');
+        const n = parseInt(nInput.value);
+        const varX = document.getElementById('varX').value.trim() || "X";
+        const varY = document.getElementById('varY').value.trim() || "Y";
+        const container = document.getElementById('data-input');
+
+        // Hapus pesan error lama jika ada
+        const existingError = document.getElementById('error-n');
+        if (existingError) existingError.remove();
+
+        // Validasi minimal 2 data
+        if (isNaN(n) || n < 2) {
+            const errorMsg = document.createElement('div');
+            errorMsg.id = 'error-n';
+            errorMsg.style.color = 'red';
+            errorMsg.style.fontSize = '0.9em';
+            errorMsg.style.marginTop = '5px';
+            errorMsg.innerText = 'Minimal data yang diperlukan adalah 2.';
+            nInput.parentNode.insertBefore(errorMsg, nInput.nextSibling);
+            return;
         }
 
-        function loadSavedPage() {
-            const currentPage = localStorage.getItem('currentPage');
-            if (currentPage === 'calculator') {
-                openCalculator();
+        // Lanjutkan jika valid
+        container.innerHTML = '';
+        let tableHTML = `<table class="input-table"><tr><th>No.</th><th>${varX}</th><th>${varY}</th></tr>`;
+        for (let i = 1; i <= n; i++) {
+            tableHTML += `<tr><td>${i}</td><td><input type="number" id="x${i}" step="any"></td><td><input type="number" id="y${i}" step="any"></td></tr>`;
+        }
+        tableHTML += `</table>`;
+        container.innerHTML = tableHTML;
+        document.getElementById('calculate-btn').style.display = 'block';
+    }
+
+    function formatNumber(num, decimal) {
+        let number = parseFloat(num);
+        if (isNaN(decimal) || decimal === null || decimal < 0) {
+            // Jika decimal kosong/tidak valid, tampilkan semua angka
+            return number.toLocaleString('id-ID');
+        } else {
+            // Jika ada nilai desimal, bulatkan sesuai input
+            return number.toFixed(decimal).replace('.', ',').replace(/\.?0+$/, '');
+        }
+    }
+
+    function calculateRegression() {
+        const n = parseInt(document.getElementById('n').value);
+        const decimalInput = document.getElementById('decimal').value;
+        const decimal = parseInt(decimalInput);
+        const varX = document.getElementById('varX').value.trim() || "X";
+        const varY = document.getElementById('varY').value.trim() || "Y";
+        let xValues = [];
+        let yValues = [];
+        for (let i = 1; i <= n; i++) {
+            xValues.push(parseFloat(document.getElementById(`x${i}`).value));
+            yValues.push(parseFloat(document.getElementById(`y${i}`).value));
+        }
+
+        const xBar = xValues.reduce((a, b) => a + b, 0) / n;
+        const yBar = yValues.reduce((a, b) => a + b, 0) / n;
+
+        let ssxx = 0, ssyy = 0, ssxy = 0;
+        for (let i = 0; i < n; i++) {
+            ssxx += Math.pow(xValues[i] - xBar, 2);
+            ssyy += Math.pow(yValues[i] - yBar, 2);
+            ssxy += (xValues[i] - xBar) * (yValues[i] - yBar);
+        }
+
+        const b = ssxy / ssxx;
+        const a = yBar - b * xBar;
+        const r = ssxy / Math.sqrt(ssxx * ssyy);
+        const rSquared = Math.pow(r, 2);
+
+        // Menentukan tingkat korelasi
+        let tingkatKorelasi = '';
+        const absR = Math.abs(r);
+        if (absR === 0) {
+            tingkatKorelasi = 'Tidak Berkorelasi';
+        } else if (absR > 0 && absR <= 0.3) {
+            tingkatKorelasi = 'Lemah';
+        } else if (absR > 0.3 && absR <= 0.7) {
+            tingkatKorelasi = 'Sedang/Cukup';
+        } else if (absR > 0.7 && absR < 1) {
+            tingkatKorelasi = 'Kuat';
+        } else if (absR === 1) {
+            tingkatKorelasi = 'Sempurna';
+        }
+
+        // Fungsi untuk menghilangkan .0000 pada persentase bulat
+        function toPercentage(value, decimal) {
+            const percent = value * 100;
+            let formatted;
+
+            // Jika nilai persen bulat (misal: 100.00), hilangkan desimal
+            if (percent % 1 === 0) {
+                formatted = percent.toString();
             } else {
-                document.getElementById('calculator').style.display = 'block';
-            }
-        }
-
-        function openCalculator() {
-            saveCurrentPage('calculator');
-            document.getElementById('calculator').style.display = 'block';
-        }
-
-        function goToMainMenu() {
-            saveCurrentPage('main-menu');
-            window.location.href = "index.html";
-        }
-
-        function verifyPassword() {
-            const password = document.getElementById('password-input').value;
-            if (password === 'JUJUR') {
-                document.getElementById('password-prompt').style.display = 'none';
-                document.getElementById('calculator-form').style.display = 'block';
-            } else {
-                document.getElementById('error-message').innerText = 'Password salah. Coba lagi.';
-            }
-        }
-
-        function generateInputTable() {
-            const n = parseInt(document.getElementById('n').value);
-            const varX = document.getElementById('varX').value;
-            const varY = document.getElementById('varY').value;
-            const container = document.getElementById('data-input');
-            container.innerHTML = '';
-            let tableHTML = `<table class="input-table"><tr><th>No.</th><th>${varX}</th><th>${varY}</th></tr>`;
-            for (let i = 1; i <= n; i++) {
-                tableHTML += `<tr><td>${i}</td><td><input type="number" id="x${i}" step="any"></td><td><input type="number" id="y${i}" step="any"></td></tr>`;
-            }
-            tableHTML += `</table>`;
-            container.innerHTML = tableHTML;
-            document.getElementById('calculate-btn').style.display = 'block';
-        }
-
-        // Fungsi baru: Format angka tanpa trailing zero
-        function formatNumber(num, decimal) {
-            return parseFloat(num.toFixed(decimal)).toLocaleString('id-ID', {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: decimal
-            });
-        }
-
-        function calculateRegression() {
-            const n = parseInt(document.getElementById('n').value);
-            const decimal = parseInt(document.getElementById('decimal').value);
-            const varX = document.getElementById('varX').value;
-            const varY = document.getElementById('varY').value;
-
-            let xValues = [];
-            let yValues = [];
-            for (let i = 1; i <= n; i++) {
-                xValues.push(parseFloat(document.getElementById(`x${i}`).value));
-                yValues.push(parseFloat(document.getElementById(`y${i}`).value));
+                formatted = parseFloat(percent).toFixed(decimal).replace('.', ',');
             }
 
-            const xBar = xValues.reduce((a, b) => a + b, 0) / n;
-            const yBar = yValues.reduce((a, b) => a + b, 0) / n;
+            return formatted;
+        }
 
-            let ssxx = 0, ssyy = 0, ssxy = 0;
-            for (let i = 0; i < n; i++) {
-                ssxx += Math.pow(xValues[i] - xBar, 2);
-                ssyy += Math.pow(yValues[i] - yBar, 2);
-                ssxy += (xValues[i] - xBar) * (yValues[i] - yBar);
-            }
-
-            const b = ssxy / ssxx;
-            const a = yBar - b * xBar;
-            const r = ssxy / Math.sqrt(ssxx * ssyy);
-            const rSquared = Math.pow(r, 2);
-
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = `
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = `
+            <div class="result-card">
                 <h2>Hasil Perhitungan</h2>
-                <p>Persamaan Regresi: Y = ${formatNumber(a, decimal)} + ${formatNumber(b, decimal)}X</p>
-                <p>Koefisien Korelasi (r): ${formatNumber(r, decimal)}</p>
-                <p>Koefisien Determinasi (r²): ${formatNumber(rSquared, decimal)}</p>
-                <div class="scrollable-table-container">
-                    <table>
-                        <tr>
-                            <th>${varX}</th>
-                            <th>${varY}</th>
-                            <th>(X - X̄)</th>
-                            <th>(Y - Ȳ)</th>
-                            <th>(X - X̄)²</th>
-                            <th>(Y - Ȳ)²</th>
-                            <th>(X - X̄)(Y - Ȳ)</th>
-                        </tr>
-                        ${xValues.map((x, i) => `
-                            <tr>
-                                <td>${formatNumber(x, decimal)}</td>
-                                <td>${formatNumber(yValues[i], decimal)}</td>
-                                <td>${formatNumber(x - xBar, decimal)}</td>
-                                <td>${formatNumber(yValues[i] - yBar, decimal)}</td>
-                                <td>${formatNumber(Math.pow(x - xBar, 2), decimal)}</td>
-                                <td>${formatNumber(Math.pow(yValues[i] - yBar, 2), decimal)}</td>
-                                <td>${formatNumber((x - xBar) * (yValues[i] - yBar), decimal)}</td>
-                            </tr>
-                        `).join('')}
-                    </table>
+                <p><strong>Persamaan Regresi:</strong></p>
+                <div class="equation-highlight">
+                    Ŷ = ${formatNumber(a, decimal)} + ${formatNumber(b, decimal)}X
                 </div>
+
+                <p><b>Koefisien Korelasi (r)</b> sebesar <b>${formatNumber(r, decimal)}</b> (${toPercentage(r, decimal)}%), 
+                dengan Tingkat Korelasi <b>${tingkatKorelasi}</b> dan 
+                <b>Koefisien Determinasi (r²)</b> sebesar <b>${formatNumber(rSquared, decimal)}</b> (${toPercentage(rSquared, decimal)}%).</p>
+            </div>
+            <div class="scrollable-table-container">
+                <table>
+                    <tr>
+                        <th class="deviation-row">
+                            ${varX}${document.getElementById('varX').value.trim() ? '<br><span style="font-size: 0.8em; font-weight: bold;">(X)</span>' : ''}
+                        </th>
+                        <th class="deviation-row">
+                            ${varY}${document.getElementById('varY').value.trim() ? '<br><span style="font-size: 0.8em; font-weight: bold;">(Y)</span>' : ''}
+                        </th>
+                        <td class="deviation-row">(X - X̄)</td>
+                        <td class="deviation-row">(Y - Ȳ)</td>
+                        <td class="deviation-row">(X - X̄)²</td>
+                        <td class="deviation-row">(Y - Ȳ)²</td>
+                        <td class="deviation-row">(X - X̄)(Y - Ȳ)</td>
+                    </tr>
+                    ${xValues.map((x, i) => `
+                        <tr>
+                            <td>${formatNumber(x, decimal)}</td>
+                            <td>${formatNumber(yValues[i], decimal)}</td>
+                            <td>${formatNumber(x - xBar, decimal)}</td>
+                            <td>${formatNumber(yValues[i] - yBar, decimal)}</td>
+                            <td>${formatNumber(Math.pow(x - xBar, 2), decimal)}</td>
+                            <td>${formatNumber(Math.pow(yValues[i] - yBar, 2), decimal)}</td>
+                            <td>${formatNumber((x - xBar) * (yValues[i] - yBar), decimal)}</td>
+                        </tr>
+                    `).join('')}
+                </table>
+            </div>
                 <button id="show-steps-btn" onclick="showPenyelesaian()">Tampilkan Penyelesaian</button>
                 <div id="penyelesaian" class="penyelesaian">
-                    <h3>Langkah-Langkah Penyelesaian</h3>
-                    <p><strong>1. Menghitung Rata-Rata (X̄ dan Ȳ):</strong></p>
-                    <p>X̄ = ΣX / n = (${xValues.map(x => formatNumber(x, decimal)).join(' + ')}) / ${n} = ${formatNumber(xBar, decimal)}</p>
-                    <p>Ȳ = ΣY / n = (${yValues.map(y => formatNumber(y, decimal)).join(' + ')}) / ${n} = ${formatNumber(yBar, decimal)}</p>
-                    <p><strong>2. Menghitung SSxx, SSyy, dan SSxy:</strong></p>
-                    <p>SSxx = Σ(X - X̄)² = ${formatNumber(ssxx, decimal)}</p>
-                    <p>SSyy = Σ(Y - Ȳ)² = ${formatNumber(ssyy, decimal)}</p>
-                    <p>SSxy = Σ(X - X̄)(Y - Ȳ) = ${formatNumber(ssxy, decimal)}</p>
-                    <p><strong>3. Menghitung Koefisien Regresi (b dan a):</strong></p>
-                    <p>b = SSxy / SSxx = ${formatNumber(ssxy, decimal)} / ${formatNumber(ssxx, decimal)} = ${formatNumber(b, decimal)}</p>
-                    <p>a = Ȳ - bX̄ = ${formatNumber(yBar, decimal)} - (${formatNumber(b, decimal)} * ${formatNumber(xBar, decimal)}) = ${formatNumber(a, decimal)}</p>
-                    <p><strong>4. Persamaan Regresi:</strong></p>
-                    <p>Y = a + bX = ${formatNumber(a, decimal)} + ${formatNumber(b, decimal)}X</p>
-                    <p><strong>5. Menghitung Koefisien Korelasi (r):</strong></p>
-                    <p>r = SSxy / √(SSxx * SSyy) = ${formatNumber(ssxy, decimal)} / √(${formatNumber(ssxx, decimal)} * ${formatNumber(ssyy, decimal)}) = ${formatNumber(r, decimal)}</p>
-                    <p><strong>6. Menghitung Koefisien Determinasi (r²):</strong></p>
-                    <p>r² = r * r = ${formatNumber(r, decimal)} * ${formatNumber(r, decimal)} = ${formatNumber(rSquared, decimal)}</p>
-                </div>
-                <canvas id="regression-chart"></canvas>
-            `;
-            renderRegressionChart(xValues, yValues, a, b);
+                <h3>Langkah-Langkah Penyelesaian</h3>
+                <p><strong>1. Menghitung Rata-Rata (X̄ dan Ȳ):</strong></p>
+                <p>X̄ = ΣX / n = (${xValues.map(x => formatNumber(x, decimal)).join(' + ')}) / ${n} = ${formatNumber(xBar, decimal)}</p>
+                <p>Ȳ = ΣY / n = (${yValues.map(y => formatNumber(y, decimal)).join(' + ')}) / ${n} = ${formatNumber(yBar, decimal)}</p>
+                <p><strong>2. Menghitung SSxx, SSyy, dan SSxy:</strong></p>
+                <p>SSxx = Σ(X - X̄)² = ${formatNumber(ssxx, decimal)}</p>
+                <p>SSyy = Σ(Y - Ȳ)² = ${formatNumber(ssyy, decimal)}</p>
+                <p>SSxy = Σ(X - X̄)(Y - Ȳ) = ${formatNumber(ssxy, decimal)}</p>
+                <p><strong>3. Menghitung Koefisien Regresi (b dan a):</strong></p>
+                <p>b = SSxy / SSxx = ${formatNumber(ssxy, decimal)} / ${formatNumber(ssxx, decimal)} = ${formatNumber(b, decimal)}</p>
+                <p>a = Ȳ - bX̄ = ${formatNumber(yBar, decimal)} - (${formatNumber(b, decimal)} * ${formatNumber(xBar, decimal)}) = ${formatNumber(a, decimal)}</p>
+                <p><strong>4. Persamaan Regresi:</strong></p>
+                <p>Y = a + bX = ${formatNumber(a, decimal)} + ${formatNumber(b, decimal)}X</p>
+                <p><strong>5. Menghitung Koefisien Korelasi (r):</strong></p>
+                <p>r = SSxy / √(SSxx * SSyy) = ${formatNumber(ssxy, decimal)} / √(${formatNumber(ssxx, decimal)} * ${formatNumber(ssyy, decimal)}) = ${formatNumber(r, decimal)}</p>
+                <p><strong>6. Menghitung Koefisien Determinasi (r²):</strong></p>
+                <p>r² = r * r = ${formatNumber(r, decimal)} * ${formatNumber(r, decimal)} = ${formatNumber(rSquared, decimal)}</p>
+            </div>
+            <canvas id="regression-chart"></canvas>
+        `;
+        /* showPenyelesaian(); */
+        renderRegressionChart(xValues, yValues, a, b);
+    }
+
+    function showPenyelesaian() {
+        const penyelesaianDiv = document.getElementById('penyelesaian');
+        const toggleBtn = document.getElementById('show-steps-btn');
+        if (penyelesaianDiv.style.display === 'none' || penyelesaianDiv.style.display === '') {
+            penyelesaianDiv.style.display = 'block';
+            toggleBtn.innerText = 'Sembunyikan Penyelesaian';
+        } else {
+            penyelesaianDiv.style.display = 'none';
+            toggleBtn.innerText = 'Tampilkan Penyelesaian';
+        }
+    }
+
+    function renderRegressionChart(xValues, yValues, a, b) {
+        const ctx = document.getElementById('regression-chart').getContext('2d');
+
+        // Hapus chart lama jika ada
+        if (window.regressionChartInstance) {
+            window.regressionChartInstance.destroy();
         }
 
-        function showPenyelesaian() {
-            const penyelesaianDiv = document.getElementById('penyelesaian');
-            if (penyelesaianDiv.style.display === 'none' || penyelesaianDiv.style.display === '') {
-                penyelesaianDiv.style.display = 'block';
-                document.getElementById('show-steps-btn').innerText = 'Sembunyikan Penyelesaian';
-            } else {
-                penyelesaianDiv.style.display = 'none';
-                document.getElementById('show-steps-btn').innerText = 'Tampilkan Penyelesaian';
-            }
-        }
-
-        function renderRegressionChart(xValues, yValues, a, b) {
-            const ctx = document.getElementById('regression-chart').getContext('2d');
-            const regressionLine = xValues.map(x => a + b * x);
-            new Chart(ctx, {
-                type: 'scatter',
-                data: {
-                    datasets: [
-                        {
-                            label: 'Data Asli',
-                            data: xValues.map((x, i) => ({ x: x, y: yValues[i] })),
-                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            borderWidth: 1,
-                            pointRadius: 5,
-                        },
-                        {
-                            label: 'Garis Regresi',
-                            data: xValues.map(x => ({ x: x, y: a + b * x })),
-                            type: 'line',
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            borderWidth: 2,
-                            fill: false,
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    scales: {
-                        x: { type: 'linear', position: 'bottom', title: { display: true, text: 'X' }},
-                        y: { title: { display: true, text: 'Y' }}
+        window.regressionChartInstance = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Data Asli',
+                        data: xValues.map((x, i) => ({ x: x, y: yValues[i] })),
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        pointRadius: 5
                     },
-                    plugins: {
-                        legend: { display: true, position: 'top' },
-                        tooltip: {
-                            callbacks: {
-                                label: context => `(${context.parsed.x}, ${context.parsed.y})`
-                            }
+                    {
+                        label: 'Garis Regresi',
+                        data: xValues.map(x => ({ x: x, y: a + b * x })),
+                        type: 'line',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 2,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 16 / 9,
+                scales: {
+                    x: { 
+                        type: 'linear', 
+                        position: 'bottom', 
+                        title: { display: true, text: 'X' } 
+                    },
+                    y: { 
+                        title: { display: true, text: 'Y' } 
+                    }
+                },
+                plugins: {
+                    legend: { display: true, position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: context => `(${context.parsed.x}, ${context.parsed.y})`
                         }
                     }
                 }
-            });
-        }
-
-        window.onload = function () {
-            loadSavedPage();
-        };
-    </script>
+            }
+        });
+    }
+</script>
 </body>
 </html>
