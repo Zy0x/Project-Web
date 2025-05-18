@@ -233,17 +233,8 @@
 <div id="calculator" class="container">
     <h1>Kalkulator Analisis Regresi</h1>
 
-    <!-- Password Prompt -->
-    <div id="password-prompt" style="display: block;">
-        <p>Masukkan Password:</p>
-        <input type="password" id="password-input" />
-        <button onclick="verifyPassword()">Submit</button>
-        <p id="error-message" style="color: red;"></p>
-        <p style="font-size: 0.7em; color: #656565; margin-top: 10px;">*Catatan: Password tersedia di dalam materi pembelajaran.</p>
-    </div>
-
     <!-- Calculator Form -->
-    <div id="calculator-form" style="display: none;">
+    <div id="calculator-form">
         <label for="n">Banyak Data (n)</label>
         <input type="number" id="n" min="1" required />
         <small id="error-n" style="color: red; font-size: 0.9em; display: none;">
@@ -266,16 +257,18 @@
 </div>
 
 <script>
-    function verifyPassword() {
-        const password = document.getElementById('password-input').value;
-        if (password === 'JUJUR') {
-            document.getElementById('password-prompt').style.display = 'none';
-            document.getElementById('calculator-form').style.display = 'block';
-        } else {
-            document.getElementById('error-message').innerText = 'Password salah. Coba lagi.';
-        }
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+    if (!isLoggedIn || isLoggedIn !== 'true') {
+        // Jika belum login, arahkan ke halaman login
+        window.location.href = 'login.html';
     }
 
+    // Fungsi logout (opsional)
+    function logout() {
+        localStorage.removeItem('isLoggedIn');
+        window.location.href = 'login.html';
+    }
     // 🔔 Event Listener Validasi Real-Time Input "n"
     document.getElementById('n').addEventListener('input', function () {
         const nInput = document.getElementById('n');
@@ -327,17 +320,30 @@
     function formatNumber(num, decimal) {
         let number = parseFloat(num);
         if (isNaN(number)) return '';
-    
-        // Jika decimal tidak ditentukan atau negatif, gunakan semua desimal valid
+
+        // Jika decimal tidak ditentukan atau negatif, gunakan semua desimal valid tanpa pembulatan
         if (isNaN(decimal) || decimal === null || decimal < 0) {
             return number.toString().replace('.', ',');
         }
-    
+
         // Bulatkan ke jumlah desimal yang diminta
         let fixedStr = number.toFixed(decimal);
-    
-        // Ganti titik ke koma dan hapus .0 / .00 / .000 jika bulat
-        return fixedStr.replace('.', ',').replace(/,0+$/, '');
+
+        // Hapus nol di akhir setelah koma dan koma itu sendiri jika tidak ada angka di depannya
+        let parts = fixedStr.split('.');
+        let integerPart = parts[0];
+        let decimalPart = parts[1];
+
+        // Hapus nol di akhir
+        decimalPart = decimalPart.replace(/0+$/, '');
+
+        // Jika decimalPart kosong setelah dihapus, kembalikan hanya integer
+        if (decimalPart === '') {
+            return integerPart.replace(/^(-?\d+)(\.0+)?$/, '$1').replace('.', ',');
+        }
+
+        // Gabungkan kembali
+        return `${integerPart},${decimalPart}`;
     }
 
     function calculateRegression() {
