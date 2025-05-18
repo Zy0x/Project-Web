@@ -120,6 +120,14 @@
                 margin: 20px;
                 padding: 20px;
             }
+            .toggle-edit {
+                right: 6px !important;
+                top: 6px !important;
+            }
+            input[type="text"] {
+                padding: 10px 36px 10px 12px !important;
+                font-size: 0.95em !important;
+            }
         }
     </style>
 </head>
@@ -130,9 +138,46 @@
     <form onsubmit="return verifyPassword(event)">
         <div class="form-group">
             <label for="username">Username</label>
-            <input type="text" id="username" placeholder="Masukkan username" required />
+            <div style="position: relative; display: flex; align-items: center;">
+                <input 
+                    type="text" 
+                    id="username" 
+                    value="User" 
+                    readonly 
+                    required 
+                    style="
+                        width: 100%;
+                        padding: 12px 40px 12px 14px;
+                        font-size: 1em;
+                        border: 1px solid #ccc;
+                        border-radius: 6px;
+                        background-color: #f0f0f0;
+                        color: #555;
+                        transition: background-color 0.3s ease, border-color 0.3s ease;
+                        cursor: not-allowed;
+                    "
+                />
+                <button 
+                    type="button" 
+                    class="toggle-edit" 
+                    onclick="toggleEditUsername()" 
+                    aria-label="Edit Username"
+                    style="
+                        position: absolute;
+                        right: 10px;
+                        top: 8px;
+                        background: none;
+                        border: none;
+                        cursor: pointer;
+                        font-size: 1.2em;
+                        color: #aaa;
+                        transition: color 0.3s ease;
+                    "
+                >
+                    <i class="fas fa-pencil-alt"></i>
+                </button>
+            </div>
         </div>
-
         <div class="form-group">
             <label for="passwordKu">Password</label>
             <input type="password" id="passwordKu" placeholder="Masukkan password" required />
@@ -143,6 +188,9 @@
 
         <button type="submit" class="login-btn">LOGIN</button>
         <p id="error-message" style="color: red; text-align: center; margin-top: 10px;"></p>
+        <p style="text-align: center; font-size: 0.9em; color: #4e4e4e; margin-top: 15px;">
+            Silakan lihat kembali materi untuk mendapatkan password.
+        </p>
     </form>
 
     <div class="footer-link">
@@ -163,6 +211,41 @@
             icon.classList.replace("fa-eye-slash", "fa-eye");
         }
     }
+    // Toggle edit username
+    function toggleEditUsername() {
+        const usernameInput = document.getElementById("username");
+        const icon = document.querySelector(".toggle-edit i");
+
+        if (usernameInput.readOnly) {
+            usernameInput.readOnly = false;
+            usernameInput.focus();
+            usernameInput.style.backgroundColor = "#fff";
+            usernameInput.style.color = "#000";
+            usernameInput.style.cursor = "text";
+            usernameInput.style.borderColor = "#2575fc";
+            icon.classList.replace("fa-pencil-alt", "fa-lock");
+        } else {
+            usernameInput.readOnly = true;
+            usernameInput.style.backgroundColor = "#f0f0f0";
+            usernameInput.style.color = "#555";
+            usernameInput.style.cursor = "not-allowed";
+            usernameInput.style.borderColor = "#ccc";
+            icon.classList.replace("fa-lock", "fa-pencil-alt");
+
+            // Simpan ke localStorage saat edit selesai
+            localStorage.setItem('lastUsername', usernameInput.value);
+        }
+    }
+
+    // Auto-set username dan warna input saat halaman dimuat
+    window.onload = function () {
+        const usernameInput = document.getElementById("username");
+        const savedUser = localStorage.getItem('lastUsername');
+
+        if (!usernameInput.value) {
+            usernameInput.value = savedUser || "User";
+        }
+    };
 
     function verifyPassword(event) {
         event.preventDefault(); // Mencegah reload halaman
