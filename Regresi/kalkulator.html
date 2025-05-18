@@ -398,9 +398,10 @@
             <div class="result-card">
                 <h2>Hasil Perhitungan</h2>
                 <p><strong>Persamaan Regresi:</strong></p>
-                <div class="equation-highlight">
-                    Ŷ = ${formatNumber(a, decimal)} + ${formatNumber(b, decimal)}X
-                </div>
+                ${b >= 0 ? 
+                    `<div class="equation-highlight">Ŷ = ${formatNumber(a, decimal)} + ${formatNumber(b, decimal)}X</div>` : 
+                    `<div class="equation-highlight">Ŷ = ${formatNumber(a, decimal)} - ${formatNumber(Math.abs(b), decimal)}X</div>`
+                }
 
                 <p><b>Koefisien Korelasi (r)</b> sebesar <b>${formatNumber(r, decimal)}</b> (${toPercentage(r, decimal)}%), 
                 dengan Tingkat Korelasi <b>${tingkatKorelasi}</b> dan 
@@ -448,7 +449,12 @@
                 <p>b = SSxy / SSxx = ${formatNumber(ssxy, decimal)} / ${formatNumber(ssxx, decimal)} = ${formatNumber(b, decimal)}</p>
                 <p>a = Ȳ - bX̄ = ${formatNumber(yBar, decimal)} - (${formatNumber(b, decimal)} * ${formatNumber(xBar, decimal)}) = ${formatNumber(a, decimal)}</p>
                 <p><strong>4. Persamaan Regresi:</strong></p>
-                <p>Y = a + bX = ${formatNumber(a, decimal)} + ${formatNumber(b, decimal)}X</p>
+                <p>Ŷ = a + bX = 
+                    ${b >= 0 ? 
+                        `${formatNumber(a, decimal)} + ${formatNumber(b, decimal)}X` : 
+                        `${formatNumber(a, decimal)} - ${formatNumber(Math.abs(b), decimal)}X`
+                    }
+                </p>
                 <p><strong>5. Menghitung Koefisien Korelasi (r):</strong></p>
                 <p>r = SSxy / √(SSxx * SSyy) = ${formatNumber(ssxy, decimal)} / √(${formatNumber(ssxx, decimal)} * ${formatNumber(ssyy, decimal)}) = ${formatNumber(r, decimal)}</p>
                 <p><strong>6. Menghitung Koefisien Determinasi (r²):</strong></p>
