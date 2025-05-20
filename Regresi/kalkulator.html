@@ -403,12 +403,22 @@
 
 <script>
     const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const loginTime = parseInt(localStorage.getItem('loginTime'));
 
-    if (!isLoggedIn || isLoggedIn !== 'true') {
-        // Jika belum login, arahkan ke halaman login
-        window.location.href = 'login.html';
+    // Jika belum login atau sesi sudah melebihi 1 menit (60000 ms)
+    if (!isLoggedIn || isNaN(loginTime) || (new Date().getTime() - loginTime > 60000)) {
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('loginTime');
+        window.location.href = 'login.html'; // Arahkan ke login
     }
 
+    // Logout otomatis setelah 1 menit
+    setTimeout(() => {
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('loginTime');
+        alert("Sesi telah berakhir karena timeout.");
+        window.location.href = 'login.html';
+    }, 60000); // 60 detik
     // Fungsi logout (opsional)
     function logout() {
         localStorage.removeItem('isLoggedIn');
