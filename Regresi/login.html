@@ -252,9 +252,17 @@
 
         const password = document.getElementById('passwordKu').value;
 
-        if (password === 'JUJUR') {
-            // Simpan status login ke localStorage
+        // Hash password dengan SHA-256
+        const hashedPassword = CryptoJS.SHA256(password).toString();
+
+        // Hash dari password asli "JUJUR"
+        const correctHash = "a8935b7f3791e2d6398c69053a62c08f195b4729125ac137e97bc9f8f2f9a650";
+
+        if (hashedPassword === correctHash) {
+            // Simpan status login & waktu login ke localStorage
             localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('loginTime', new Date().getTime());
+
             // Arahkan ke halaman kalkulator
             window.location.href = 'kalkulator.html';
         } else {
@@ -262,6 +270,5 @@
         }
     }
 </script>
-
 </body>
 </html>
