@@ -6,6 +6,9 @@
     <title>Kalkulator Analisis Regresi</title>
     <link rel="icon" href="/assets/images/favicon.png" type="image/png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js "></script>
+    <!-- Load MathJax untuk menampilkan notasi matematika -->
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
 
     <style>
         /* Reset */
@@ -115,11 +118,30 @@
             margin-top: 15px;
             width: 100%;
         }
+         .input-table td input {
+            text-align: center;
+        }       
         .penyelesaian {
             margin-top: 25px;
             font-size: 14px;
             line-height: 1.6;
             display: none;
+            overflow-x: auto; /* Tambahkan scroll horizontal */
+            -webkit-overflow-scrolling: touch; /* Agar smooth scroll di iOS */
+        }
+
+        /* Gaya tambahan untuk scrollbar (opsional tapi estetis) */
+        .penyelesaian::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .penyelesaian::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .penyelesaian::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 4px;
         }
         .penyelesaian h3 {
             margin-bottom: 10px;
@@ -199,6 +221,19 @@
             display: none;
         }
 
+        details.step-card {
+            transition: max-height 0.3s ease-out;
+            overflow: hidden;
+        }
+
+        details.step-card[open] {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         .correlation {
             color: #2e7d32;
             font-weight: bold;
@@ -207,6 +242,115 @@
         .determination {
             color: #6a1b9a;
             font-weight: bold;
+        }
+        .step-card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .icon-arrow {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+            color: #888;
+            min-width: 1.2em; /* Agar ikon tidak menggeser teks saat animasi */
+            text-align: center;
+        }
+
+        .step-card[open] .icon-arrow {
+            transform: rotate(90deg);
+            color: #007bff;
+        }
+        .step-header {
+            font-size: 1em;
+            font-weight: bold;
+            color: #2c3e50;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to right, #f8f9fa, #fff);
+            position: relative;
+            border-left: 5px solid #007bff;
+        }
+        .step-header summary {
+            outline: none;
+        }
+        .step-title {
+            flex-grow: 1;
+            white-space: nowrap; /* Agar teks tetap satu baris */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: 10px; /* Jarak antara teks dan ikon */
+            display: flex;
+            align-items: center;
+        }
+
+        .step-content {
+            padding: 15px 20px;
+            font-size: 0.95em;
+            line-height: 1.6;
+            background-color: #fbfbfb;
+            border-top: 1px solid #eee;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: left; /* Pastikan teks rata kiri */
+        }
+
+        /* Agar rumus MathJax juga rata kiri */
+        .step-content p, .step-content ul, .step-content li, .step-content table {
+            text-align: left !important;
+            margin-left: 0 !important;
+        }
+
+        .MathJax {
+            text-align: left !important;
+            display: block !important;
+        }
+
+        .MathJax_Display {
+            text-align: left !important;
+            display: block !important;
+        }
+        .step-content::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .step-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .step-content::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+
+        .step-content .math-alignment {
+            display: block;
+            margin-left: 20px;
+            font-family: 'Josefin Sans', sans-serif;
+        }
+
+        .step-content p {
+            margin: 0;
+        }
+
+        .interpretation-card .step-content {
+            white-space: normal;
+            overflow-x: visible;
+        }
+        input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
         }
         #regression-chart {
             width: 100%;
@@ -237,7 +381,7 @@
     <!-- Calculator Form -->
     <div id="calculator-form">
         <label for="n">Banyak Data (n)</label>
-        <input type="number" id="n" min="1" required />
+        <input type="number" id="n" min="2" required onkeypress="handleNKeyPress(event)" />
         <small id="error-n" style="color: red; font-size: 0.9em; display: none;">
             Minimal data yang diperlukan adalah 2.
         </small>
@@ -250,7 +394,7 @@
         <label for="varY">Nama Variabel Y</label>
         <input type="text" id="varY" placeholder="Contoh: Nilai Ujian" required />
         <small style="color: #666; font-size: 0.7em;">*Variabel yang dipengaruhi</small>
-        <button onclick="generateInputTable()">Lanjutkan</button>
+        <div id="action-buttons"></div>
         <div id="data-input"></div>
         <button id="calculate-btn" style="display: none;" onclick="calculateRegression()">Hitung</button>
         <div id="results" style="margin-top: 30px;"></div>
@@ -270,20 +414,161 @@
         localStorage.removeItem('isLoggedIn');
         window.location.href = 'login.html';
     }
+    function setupEnterNavigation() {
+        const fields = ['n', 'decimal', 'varX', 'varY'];
 
-    // 🔔 Event Listener Validasi Real-Time Input "n"
-    document.getElementById('n').addEventListener('input', function () {
+        // Fokus awal ke field pertama
+        document.getElementById('n')?.focus();
+
+        // Validasi n saat Enter ditekan
+        fields.forEach((id, index) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('keydown', function(event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault(); // Cegah submit form
+
+                        // Validasi khusus field 'n'
+                        if (id === 'n') {
+                            const nValue = parseInt(element.value);
+                            const container = element.parentNode;
+                            const existingError = document.getElementById('error-n');
+
+                            if (isNaN(nValue) || nValue < 2) {
+                                if (!existingError) {
+                                    const errorMsg = document.createElement('div');
+                                    errorMsg.id = 'error-n';
+                                    errorMsg.style.color = 'red';
+                                    errorMsg.style.fontSize = '0.9em';
+                                    errorMsg.style.marginTop = '5px';
+                                    errorMsg.innerText = 'Minimal data yang diperlukan adalah 2.';
+                                    container.appendChild(errorMsg);
+                                }
+                                return; // Jangan lanjut jika invalid
+                            } else {
+                                if (existingError) existingError.remove();
+                            }
+                        }
+
+                        // Lanjutkan ke field berikutnya
+                        if (index < fields.length - 1) {
+                            const nextField = document.getElementById(fields[index + 1]);
+                            if (nextField) {
+                                nextField.focus();
+                            }
+                        } else {
+                            generateInputTable();
+                            setTimeout(() => {
+                                const firstX = document.getElementById('x1');
+                                if (firstX) firstX.focus();
+                            }, 0);
+                        }
+                    }
+                });
+
+                // Tambahkan validasi tambahan saat user meninggalkan field 'n'
+                element.addEventListener('blur', function () {
+                    if (id === 'n') {
+                        const nValue = parseInt(element.value);
+                        const container = element.parentNode;
+                        const existingError = document.getElementById('error-n');
+
+                        if (isNaN(nValue) || nValue < 2) {
+                            if (!existingError) {
+                                const errorMsg = document.createElement('div');
+                                errorMsg.id = 'error-n';
+                                errorMsg.style.color = 'red';
+                                errorMsg.style.fontSize = '0.9em';
+                                errorMsg.style.marginTop = '5px';
+                                errorMsg.innerText = 'Minimal data yang diperlukan adalah 2.';
+                                container.appendChild(errorMsg);
+                            }
+                        } else {
+                            if (existingError) existingError.remove();
+                        }
+                    }
+                });
+            }
+        });
+
+        // Navigasi untuk tabel input x/y
+        document.addEventListener('keydown', function(e) {
+            const id = e.target.id;
+            const match = id.match(/^(x|y)(\d+)$/);
+            if (!match || e.key !== 'Enter') return;
+            e.preventDefault(); // Cegah submit
+            const type = match[1];
+            const num = parseInt(match[2]);
+            const max = parseInt(document.getElementById('n').value);
+
+            if (type === 'x') {
+                const nextX = document.getElementById(`x${num + 1}`);
+                if (nextX) {
+                    nextX.focus();
+                } else {
+                    const firstY = document.getElementById('y1');
+                    if (firstY) firstY.focus();
+                }
+            } else if (type === 'y') {
+                const nextY = document.getElementById(`y${num + 1}`);
+                if (nextY) {
+                    nextY.focus();
+                } else {
+                    // Jika sudah di input terakhir Yn, jalankan hitung otomatis
+                    calculateRegression();
+                }
+            }
+        });
+    }
+    function setupAutoRefreshButton() {
         const nInput = document.getElementById('n');
-        const errorMsg = document.getElementById('error-n');
+        const varXInput = document.getElementById('varX');
+        const varYInput = document.getElementById('varY');
+        const buttonContainer = document.getElementById('action-buttons');
 
-        const n = parseInt(nInput.value);
-
-        if (isNaN(n) || n < 2) {
-            errorMsg.style.display = 'block';
-        } else {
-            errorMsg.style.display = 'none';
+        function createRefreshButton() {
+            let btn = document.createElement('button');
+            btn.textContent = 'Refresh Tabel';
+            btn.style.marginTop = '20px';
+            btn.onclick = () => generateInputTable();
+            return btn;
         }
-    });
+
+        function checkInputChange() {
+            const oldBtn = document.getElementById('refresh-btn');
+            if (oldBtn) oldBtn.remove();
+
+            const n = parseInt(document.getElementById('n').value);
+            if (n >= 2) {
+                const refreshBtn = createRefreshButton();
+                refreshBtn.id = 'refresh-btn';
+                buttonContainer.appendChild(refreshBtn);
+            }
+        }
+
+        [nInput, varXInput, varYInput].forEach(input => {
+            input.addEventListener('input', checkInputChange);
+        });
+
+        // Panggil sekali saat halaman dimuat
+        checkInputChange();
+    }
+    function autoGenerateInputTable() {
+        const nInput = document.getElementById('n');
+        const varXInput = document.getElementById('varX');
+        const varYInput = document.getElementById('varY');
+
+        function tryGenerate() {
+            const n = parseInt(nInput.value);
+            if (!isNaN(n) && n >= 2) {
+                generateInputTable();
+            }
+        }
+
+        [nInput, varXInput, varYInput].forEach(input => {
+            input.addEventListener('input', tryGenerate);
+        });
+    }
 
     function generateInputTable() {
         const nInput = document.getElementById('n');
@@ -305,20 +590,68 @@
             errorMsg.style.marginTop = '5px';
             errorMsg.innerText = 'Minimal data yang diperlukan adalah 2.';
             nInput.parentNode.insertBefore(errorMsg, nInput.nextSibling);
-            return;
+            return; // Hentikan eksekusi jika invalid
         }
 
-        // Lanjutkan jika valid
+        // Jika valid, lanjutkan membuat tabel
         container.innerHTML = '';
-        let tableHTML = `<table class="input-table"><tr><th>No.</th><th>${varX}</th><th>${varY}</th></tr>`;
+        let tableHTML = `<table class="input-table" id="data-table"><tr><th>No.</th><th id="header-x">${varX}</th><th id="header-y">${varY}</th></tr>`;
         for (let i = 1; i <= n; i++) {
             tableHTML += `<tr><td>${i}</td><td><input type="number" id="x${i}" step="any"></td><td><input type="number" id="y${i}" step="any"></td></tr>`;
         }
         tableHTML += `</table>`;
         container.innerHTML = tableHTML;
         document.getElementById('calculate-btn').style.display = 'block';
+
+        // Setelah tabel dibuat, tambahkan listener untuk update header secara real-time
+        setupVariableNameListeners();
     }
-    
+
+    function validateAndGenerate() {
+        const nInput = document.getElementById('n');
+        const n = parseInt(nInput.value);
+        const container = document.getElementById('data-input');
+
+        // Hapus error lama jika ada
+        const existingError = document.getElementById('error-n');
+        if (existingError) existingError.remove();
+
+        // Jika n tidak valid (< 2), tampilkan error dan hapus tabel
+        if (isNaN(n) || n < 2) {
+            const errorMsg = document.createElement('div');
+            errorMsg.id = 'error-n';
+            errorMsg.style.color = 'red';
+            errorMsg.style.fontSize = '0.9em';
+            errorMsg.style.marginTop = '5px';
+            errorMsg.innerText = 'Minimal data yang diperlukan adalah 2.';
+            nInput.parentNode.insertBefore(errorMsg, nInput.nextSibling);
+
+            // Hapus tabel jika sudah dibuat
+            container.innerHTML = '';
+            document.getElementById('calculate-btn').style.display = 'none';
+
+            return;
+        }
+
+        // Jika valid, generate tabel
+        generateInputTable();
+    }
+    function setupVariableNameListeners() {
+        const varXInput = document.getElementById('varX');
+        const varYInput = document.getElementById('varY');
+
+        varXInput.addEventListener('input', () => {
+            const headerX = document.getElementById('header-x');
+            const newValue = varXInput.value.trim() || "X";
+            if (headerX) headerX.textContent = newValue;
+        });
+
+        varYInput.addEventListener('input', () => {
+            const headerY = document.getElementById('header-y');
+            const newValue = varYInput.value.trim() || "Y";
+            if (headerY) headerY.textContent = newValue;
+        });
+    }
     function formatNumber(num, decimal) {
         let number = parseFloat(num);
         if (isNaN(number)) return '';
@@ -349,21 +682,65 @@
     }
 
     function calculateRegression() {
+        // Hapus pesan error lama (jika ada)
+        const existingError = document.getElementById('error-empty-fields');
+        if (existingError) existingError.remove();
+
         const n = parseInt(document.getElementById('n').value);
         const decimalInput = document.getElementById('decimal').value;
         const decimal = parseInt(decimalInput);
         const varX = document.getElementById('varX').value.trim() || "X";
         const varY = document.getElementById('varY').value.trim() || "Y";
+
         let xValues = [];
         let yValues = [];
+
+        // Validasi: Pastikan semua field X dan Y sudah diisi
+        let allFilled = true;
+        let firstEmpty = null;
+
+        for (let i = 1; i <= n; i++) {
+            const xVal = document.getElementById(`x${i}`).value.trim();
+            const yVal = document.getElementById(`y${i}`).value.trim();
+
+            if (xVal === '' || yVal === '') {
+                allFilled = false;
+                if (!firstEmpty) {
+                    firstEmpty = xVal === '' ? `x${i}` : `y${i}`;
+                }
+                break; // Berhenti loop jika ketemu yang kosong
+            }
+        }
+
+        if (!allFilled) {
+            // Tampilkan pesan error
+            const errorMsg = document.createElement('div');
+            errorMsg.id = 'error-empty-fields';
+            errorMsg.style.color = 'red';
+            errorMsg.style.fontSize = '0.9em';
+            errorMsg.style.marginTop = '10px';
+            errorMsg.innerText = 'Semua kolom X dan Y harus diisi sebelum menghitung.';
+            document.getElementById('calculate-btn').parentNode.appendChild(errorMsg);
+
+            // Fokus ke field pertama yang kosong
+            if (firstEmpty) {
+                document.getElementById(firstEmpty).focus();
+            }
+
+            return; // Hentikan eksekusi fungsi
+        }
+
+        // Ambil nilai X dan Y
         for (let i = 1; i <= n; i++) {
             xValues.push(parseFloat(document.getElementById(`x${i}`).value));
             yValues.push(parseFloat(document.getElementById(`y${i}`).value));
         }
 
+        // Hitung rata-rata
         const xBar = xValues.reduce((a, b) => a + b, 0) / n;
         const yBar = yValues.reduce((a, b) => a + b, 0) / n;
 
+        // Hitung SSxx, SSyy, SSxy
         let ssxx = 0, ssyy = 0, ssxy = 0;
         for (let i = 0; i < n; i++) {
             ssxx += Math.pow(xValues[i] - xBar, 2);
@@ -371,8 +748,11 @@
             ssxy += (xValues[i] - xBar) * (yValues[i] - yBar);
         }
 
+        // Hitung koefisien regresi
         const b = ssxy / ssxx;
         const a = yBar - b * xBar;
+
+        // Hitung korelasi & determinasi
         const r = ssxy / Math.sqrt(ssxx * ssyy);
         const rSquared = Math.pow(r, 2);
 
@@ -391,21 +771,22 @@
             tingkatKorelasi = 'Sempurna';
         }
 
-        // Fungsi untuk menghilangkan .0000 pada persentase bulat
+        // Format persentase
         function toPercentage(value, decimal) {
             const percent = value * 100;
             let formatted;
-
-            // Jika nilai persen bulat (misal: 100.00), hilangkan desimal
             if (percent % 1 === 0) {
                 formatted = percent.toString();
             } else {
                 formatted = parseFloat(percent).toFixed(decimal).replace('.', ',');
             }
-
             return formatted;
         }
-
+        // Fungsi untuk membuat card pertama terbuka secara otomatis
+        function stepOpenStatus(stepNumber) {
+            return stepNumber === 1 ? 'open' : '';
+        }
+        // Buat hasil dalam HTML
         const resultsDiv = document.getElementById('results');
         resultsDiv.innerHTML = `
             <div class="result-card">
@@ -415,7 +796,6 @@
                     `<div class="equation-highlight">Ŷ = ${formatNumber(a, decimal)} + ${formatNumber(b, decimal)}X</div>` : 
                     `<div class="equation-highlight">Ŷ = ${formatNumber(a, decimal)} - ${formatNumber(Math.abs(b), decimal)}X</div>`
                 }
-
                 <p><b>Koefisien Korelasi (r)</b> sebesar <b>${formatNumber(r, decimal)}</b> (${toPercentage(r, decimal)}%), 
                 dengan Tingkat Korelasi <b>${tingkatKorelasi}</b> dan 
                 <b>Koefisien Determinasi (r²)</b> sebesar <b>${formatNumber(rSquared, decimal)}</b> (${toPercentage(rSquared, decimal)}%).</p>
@@ -448,34 +828,77 @@
                     `).join('')}
                 </table>
             </div>
-                <button id="show-steps-btn" onclick="showPenyelesaian()">Tampilkan Penyelesaian</button>
-                <div id="penyelesaian" class="penyelesaian">
+            <button id="show-steps-btn" onclick="showPenyelesaian()">Tampilkan Penyelesaian</button>
+            <div id="penyelesaian" class="penyelesaian">
                 <h3>Langkah-Langkah Penyelesaian</h3>
-                <p><strong>1. Menghitung Rata-Rata (X̄ dan Ȳ):</strong></p>
-                <p>X̄ = ΣX / n = (${xValues.map(x => formatNumber(x, decimal)).join(' + ')}) / ${n} = ${formatNumber(xBar, decimal)}</p>
-                <p>Ȳ = ΣY / n = (${yValues.map(y => formatNumber(y, decimal)).join(' + ')}) / ${n} = ${formatNumber(yBar, decimal)}</p>
-                <p><strong>2. Menghitung SSxx, SSyy, dan SSxy:</strong></p>
-                <p>SSxx = Σ(X - X̄)² = ${formatNumber(ssxx, decimal)}</p>
-                <p>SSyy = Σ(Y - Ȳ)² = ${formatNumber(ssyy, decimal)}</p>
-                <p>SSxy = Σ(X - X̄)(Y - Ȳ) = ${formatNumber(ssxy, decimal)}</p>
-                <p><strong>3. Menghitung Koefisien Regresi (b dan a):</strong></p>
-                <p>b = SSxy / SSxx = ${formatNumber(ssxy, decimal)} / ${formatNumber(ssxx, decimal)} = ${formatNumber(b, decimal)}</p>
-                <p>a = Ȳ - bX̄ = ${formatNumber(yBar, decimal)} - (${formatNumber(b, decimal)} * ${formatNumber(xBar, decimal)}) = ${formatNumber(a, decimal)}</p>
-                <p><strong>4. Persamaan Regresi:</strong></p>
-                <p>Ŷ = a + bX = 
-                    ${b >= 0 ? 
-                        `${formatNumber(a, decimal)} + ${formatNumber(b, decimal)}X` : 
-                        `${formatNumber(a, decimal)} - ${formatNumber(Math.abs(b), decimal)}X`
-                    }
-                </p>
-                <p><strong>5. Menghitung Koefisien Korelasi (r):</strong></p>
-                <p>r = SSxy / √(SSxx * SSyy) = ${formatNumber(ssxy, decimal)} / √(${formatNumber(ssxx, decimal)} * ${formatNumber(ssyy, decimal)}) = ${formatNumber(r, decimal)}</p>
-                <p><strong>6. Menghitung Koefisien Determinasi (r²):</strong></p>
-                <p>r² = r * r = ${formatNumber(r, decimal)} * ${formatNumber(r, decimal)} = ${formatNumber(rSquared, decimal)}</p>
+                <!-- LANGKAH 1 -->
+                <details class="step-card" ${stepOpenStatus(1)}>
+                <summary class="step-header">
+                    <span class="step-title">1. Menghitung Rata-Rata (\\( \\bar{X} \\) dan \\( \\bar{Y} \\))</span>
+                    <span class="icon-arrow">➤</span>
+                </summary>                    
+                <div class="step-content">
+                        <p>\\[ \\bar{X} = \\frac{\\sum X}{n} = \\frac{${xValues.map(x => formatNumber(x, decimal)).join('+')}}{${n}} = ${formatNumber(xBar, decimal)} \\]</p>
+                        <p>\\[ \\bar{Y} = \\frac{\\sum Y}{n} = \\frac{${yValues.map(y => formatNumber(y, decimal)).join('+')}}{${n}} = ${formatNumber(yBar, decimal)} \\]</p>
+                    </div>
+                </details>
+                <!-- LANGKAH 2 -->
+                <details class="step-card" ${stepOpenStatus(2)}>
+                    <summary class="step-header">2. Menghitung SSxx, SSyy, dan SSxy<span class="icon-arrow"> ➤</span></summary>
+                    <div class="step-content">
+                        <p>\\[ SS_{xx} = \\sum{(X - \\bar{X})^2} = ${xValues.map(x => `( ${formatNumber(x - xBar, decimal)} )^2`).join(' + ')} = ${formatNumber(ssxx, decimal)} \\]</p>
+                        <p>\\[ SS_{yy} = \\sum{(Y - \\bar{Y})^2} = ${yValues.map(y => `( ${formatNumber(y - yBar, decimal)} )^2`).join(' + ')} = ${formatNumber(ssyy, decimal)} \\]</p>
+                        <p>\\[ SS_{xy} = \\sum{(X - \\bar{X})(Y - \\bar{Y})} = ${xValues.map((x, i) => `( ${formatNumber(x - xBar, decimal)} )( ${formatNumber(yValues[i] - yBar, decimal)} )`).join(' + ')} = ${formatNumber(ssxy, decimal)} \\]</p>
+                    </div>
+                </details>
+                <!-- LANGKAH 3 -->
+                <details class="step-card" ${stepOpenStatus(3)}>
+                    <summary class="step-header">3. Menghitung Koefisien Regresi (b dan a)<span class="icon-arrow"> ➤</span></summary>
+                    <div class="step-content">
+                        <p>\\[ b = \\frac{SS_{xy}}{SS_{xx}} = \\frac{${formatNumber(ssxy, decimal)}}{${formatNumber(ssxx, decimal)}} = ${formatNumber(b, decimal)} \\]</p>
+                        <p>\\[ a = \\bar{Y} - b\\bar{X} = ${formatNumber(yBar, decimal)} - (${formatNumber(b, decimal)} \\times ${formatNumber(xBar, decimal)}) = ${formatNumber(a, decimal)} \\]</p>
+                    </div>
+                </details>
+                <!-- LANGKAH 4 -->
+                <details class="step-card" ${stepOpenStatus(4)}>
+                    <summary class="step-header">4. Persamaan Regresi Linier<span class="icon-arrow"> ➤</span></summary>
+                    <div class="step-content">
+                        <p>\\[ Ŷ = a + bX = 
+                            ${b >= 0 ? 
+                                `${formatNumber(a, decimal)} + ${formatNumber(b, decimal)}X` : 
+                                `${formatNumber(a, decimal)} - ${formatNumber(Math.abs(b), decimal)}X`
+                            }
+                        \\]</p>
+                    </div>
+                </details>
+                <!-- LANGKAH 5 -->
+                <details class="step-card" ${stepOpenStatus(5)}>
+                    <summary class="step-header">5. Menghitung Koefisien Korelasi (r)<span class="icon-arrow"> ➤</span></summary>
+                    <div class="step-content">
+                        <p>\\[ r = \\frac{SS_{xy}}{\\sqrt{SS_{xx} \\cdot SS_{yy}}} = \\frac{${formatNumber(ssxy, decimal)}}{\\sqrt{${formatNumber(ssxx, decimal)} \\cdot ${formatNumber(ssyy, decimal)}}} = ${formatNumber(r, decimal)} \\]</p>
+                    </div>
+                </details>
+                <!-- LANGKAH 6 -->
+                <details class="step-card" ${stepOpenStatus(6)}>
+                    <summary class="step-header">6. Menghitung Koefisien Determinasi (r²)<span class="icon-arrow"> ➤</span></summary>
+                    <div class="step-content">
+                        <p>\\[ r^2 = r \\cdot r = ${formatNumber(r, decimal)} \\cdot ${formatNumber(r, decimal)} = ${formatNumber(rSquared, decimal)} \\]</p>
+                    </div>
+                </details>
+                <!-- INTERPRETASI -->
+                <details class="step-card interpretation-card" ${stepOpenStatus(7)}>
+                    <summary class="step-header">7. Interpretasi Hasil<span class="icon-arrow"> ➤</span></summary>
+                    <div class="step-content">
+                        <ul>
+                            <li>Koefisien korelasi sebesar <strong>${formatNumber(r, decimal)}</strong>, menunjukkan hubungan antara variabel X dan Y dengan tingkat korelasi <strong>${tingkatKorelasi}</strong>.</li>
+                            <li>Koefisien determinasi sebesar <strong>${formatNumber(rSquared, decimal)}</strong>, artinya sekitar <strong>${toPercentage(rSquared, decimal)}%</strong> variasi pada variabel Y dapat dijelaskan oleh variabel X melalui model regresi linier ini.</li>
+                        </ul>
+                    </div>
+                </details>
             </div>
             <canvas id="regression-chart"></canvas>
         `;
-        /* showPenyelesaian(); */
+
         renderRegressionChart(xValues, yValues, a, b);
     }
 
@@ -485,6 +908,7 @@
         if (penyelesaianDiv.style.display === 'none' || penyelesaianDiv.style.display === '') {
             penyelesaianDiv.style.display = 'block';
             toggleBtn.innerText = 'Sembunyikan Penyelesaian';
+            MathJax.typeset(); // Pastikan rumus matematika dirender ulang
         } else {
             penyelesaianDiv.style.display = 'none';
             toggleBtn.innerText = 'Tampilkan Penyelesaian';
@@ -558,6 +982,15 @@
             e.preventDefault();
             e.returnValue = message;
         }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+        setupEnterNavigation();
+        setupAutoRefreshButton();
+        autoGenerateInputTable(); // Tambahkan baris ini
+        document.getElementById('n').addEventListener('input', function () {
+            validateAndGenerate(); // Validasi dan generate otomatis saat input berubah
+        });
     });
 </script>
 </body>
