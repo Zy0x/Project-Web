@@ -423,37 +423,60 @@
             timer = setTimeout(() => func.apply(this, args), delay);
         };
     }
-    function setupEnterNavigation() {
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('keydown', debounce((e) => {
-                const id = e.target.id;
-                const match = id.match(/([xy])(\d+)/);
-                if (!match || e.key !== 'Enter') return;
-                e.preventDefault();
-
-                const type = match[1];
-                const num = parseInt(match[2]);
-                const max = parseInt(document.getElementById('n').value);
-
-                if (type === 'x') {
-                    const nextX = document.getElementById(`x${num + 1}`);
-                    if (nextX) {
-                        nextX.focus();
-                    } else {
-                        const firstY = document.getElementById('y1');
-                        if (firstY) firstY.focus();
+    function setupBasicEnterNavigation() {
+        const fields = ['n', 'decimal', 'varX', 'varY'];
+        fields.forEach((id, index) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (index < fields.length - 1) {
+                            document.getElementById(fields[index + 1])?.focus();
+                        }
                     }
-                } else if (type === 'y') {
-                    const nextY = document.getElementById(`y${num + 1}`);
-                    if (nextY) {
-                        nextY.focus();
-                    } else {
-                        calculateRegression(); // Hitung hanya sekali saat Enter di akhir
-                    }
-                }
-            }, 200)); // Delay 200ms
+                });
+            }
         });
-    };
+    }
+    function setupEnterNavigation() {
+        const container = document.getElementById('data-input');
+        if (!container) return;
+
+        function handleEnter(e) {
+            const id = e.target.id;
+            const match = id.match(/([xy])(\d+)/);
+            if (!match || e.key !== 'Enter') return;
+            e.preventDefault();
+
+            const type = match[1];
+            const num = parseInt(match[2]);
+            const max = parseInt(document.getElementById('n').value);
+
+            if (type === 'x') {
+                const nextX = document.getElementById(`x${num + 1}`);
+                if (nextX) {
+                    nextX.focus();
+                } else {
+                    const firstY = document.getElementById('y1');
+                    if (firstY) firstY.focus();
+                }
+            } else if (type === 'y') {
+                const nextY = document.getElementById(`y${num + 1}`);
+                if (nextY) {
+                    nextY.focus();
+                } else {
+                    calculateRegression(); // Hitung otomatis saat Enter di Yn
+                }
+            }
+        }
+
+        // Pasang event listener ke semua input di dalam data-input
+        container.querySelectorAll('input').forEach(input => {
+            input.removeEventListener('keydown', handleEnter); // Hindari duplikasi
+            input.addEventListener('keydown', debounce(handleEnter, 200));
+        });
+    }
     function autoGenerateInputTable() {
         const nInput = document.getElementById('n');
         const varXInput = document.getElementById('varX');
@@ -506,6 +529,7 @@
 
         // Setelah tabel dibuat, tambahkan listener untuk update header secara real-time
         setupVariableNameListeners();
+        setupEnterNavigation(); // ⬅️ TAMBAHKAN DI SINI
     }
 
     function validateAndGenerate() {
@@ -1060,10 +1084,10 @@
     // Panggil fungsi ini saat DOM dimuat
     window.addEventListener('DOMContentLoaded', () => {
         setupEnterNavigation();
+        setupBasicEnterNavigation(); // 🔥 Tambahkan ini
         autoGenerateInputTable();
         setupAutoCalculateOnDecimalChange();
-        setupResetButtonVisibility(); // 🔥 Tambahkan baris ini
-
+        setupResetButtonVisibility();
         document.getElementById('n').addEventListener('input', debounce(function () {
             validateAndGenerate();
         }, 300));
@@ -1098,16 +1122,6 @@
         // Cek ulang apakah semua field terisi
         checkAllFieldsFilled(); // ⬅️ PENTING: Ini memicu tombol hitung muncul kembali jika sesuai
     };
-
-    // Panggil fungsi ini saat DOM dimuat
-    window.addEventListener('DOMContentLoaded', () => {
-        setupEnterNavigation();
-        autoGenerateInputTable();
-        setupAutoCalculateOnDecimalChange(); // Tambahkan baris ini
-        document.getElementById('n').addEventListener('input', debounce(function () {
-            validateAndGenerate();
-        }, 300)); // Delay 300ms
-    });
 </script>
 </body>
 </html>
