@@ -1,1 +1,463 @@
-admin.html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel - Analisis Regresi</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins :wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com ">
+  <link rel="preconnect" href="https://fonts.gstatic.com " crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans :ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend :wght@100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat :ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css "/>
+
+  <style>
+    /* Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #f4f4f4, #eaeaea);
+      color: #333;
+      padding: 20px;
+      position: relative;
+    }
+
+    /* Countdown Container */
+    .countdown-container {
+      position: fixed;
+      z-index: 1000;
+      background-color: white;
+      padding: 15px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      width: 220px;
+      font-family: "Montserrat", sans-serif;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .countdown-container.dragging {
+      cursor: grabbing;
+    }
+
+    .countdown-time {
+      font-size: 1.5em;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 10px;
+      color: #2575fc;
+    }
+
+    .countdown-controls {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .countdown-controls button {
+      flex: 1;
+      padding: 6px 10px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9em;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-start { background-color: #2575fc; color: white; }
+    .btn-pause { background-color: #f1c40f; color: white; }
+    .btn-stop { background-color: #e74c3c; color: white; }
+
+    .btn-start:hover { background-color: #1e64d6; }
+    .btn-pause:hover { background-color: #d3b10a; }
+    .btn-stop:hover { background-color: #c0392b; }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 6px 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.95em;
+    }
+
+    label {
+      font-size: 0.85em;
+      margin-bottom: 4px;
+      display: block;
+      font-weight: bold;
+    }
+
+    .admin-container {
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2em;
+      font-family: "Josefin Sans", sans-serif;
+      margin-bottom: 40px;
+      color: #2575fc;
+      letter-spacing: 1px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 25px;
+    }
+
+    .card {
+      background-color: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      text-align: center;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    }
+
+    .qr-image {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+    }
+
+    .qr-image:hover {
+      opacity: 0.9;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    .card-title {
+      font-weight: bold;
+      font-size: 1.1em;
+      margin-bottom: 10px;
+      color: #2575fc;
+      cursor: pointer;
+      transition: color 0.3s ease;
+      text-decoration: none;
+    }
+
+    .card-title:hover {
+      color: #1e64d6;
+    }
+
+    .logout-btn {
+      display: block;
+      margin: 40px auto 0;
+      background-color: #ff4b5c;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95em;
+      transition: background-color 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background-color: #e03c4d;
+    }
+
+    /* Pop-up Image Style */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      visibility: hidden;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .overlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .overlay img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+      animation: zoomIn 0.3s ease forwards;
+    }
+
+    a {
+      font-family: "Lexend", sans-serif;
+    }
+
+    .close-btn {
+      position: fixed;
+      top: 20px;
+      right: 30px;
+      color: white;
+      font-size: 2em;
+      cursor: pointer;
+      z-index: 10000;
+      transition: transform 0.2s ease;
+    }
+
+    .close-btn:hover {
+      transform: rotate(90deg);
+    }
+
+    @keyframes zoomIn {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.5em;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Countdown Timer -->
+<div class="countdown-container" id="countdownBox">
+  <label for="duration">Durasi (Menit)</label>
+  <input type="number" id="duration" placeholder="Contoh: 60" min="1" value="60">
+  <div class="countdown-time" id="countdownTime">00:00</div>
+  <div class="countdown-controls">
+    <button class="btn-start" onclick="startCountdown()">Start</button>
+    <button class="btn-pause" onclick="pauseCountdown()">Pause</button>
+    <button class="btn-stop" onclick="stopCountdown()">Stop</button>
+  </div>
+</div>
+
+<div class="admin-container">
+  <h1>Admin Panel</h1>
+
+  <div class="card-grid">
+
+    <!-- E-LKK Analisis Regresi -->
+    <div class="card">
+      <img src="assets/images/E-LKK.png" alt="QR Code E-LKK" class="qr-image" onclick="showImage(this.src)">
+      <div class="card-body">
+        <a href="https://www.liveworksheets.com/c?a=s&g=XI+-+B4&s=Matematika+-+Analisis+Regresi&t=Y9W5qdeAkA&mn=dz&m=n&sr=n&is=y&ia=y&l=db&i=oudnnus&r=r8&f=dzdfzfus&ms=uzz&cd=p-4-8tnr-c-nglliinfjxnllxps6ngnegexpxgg&mw=hs " target="_blank" class="card-title">
+          E-LKK Analisis Regresi
+        </a>
+      </div>
+    </div>
+
+    <!-- Asesmen Formatif -->
+    <div class="card">
+      <img src="assets/images/Asesmen-Formatif.png" alt="QR Code Asesmen Formatif" class="qr-image" onclick="showImage(this.src)">
+      <div class="card-body">
+        <a href="https://www.liveworksheets.com/c?a=s&g=XI+-+B4&s=Matematika+-+Analisis+Regresi+Linear+%28Asesmen+Formatif%29&t=Y9W5qdeAkA&mn=uf&m=n&sr=n&is=y&ia=y&l=qu&i=oututfx&r=pe&f=dzdfzfus&ms=uzz&cd=p-4-8tnr-c-xelliitxjxzxzemhrngnegexpxgg&mw=hs " target="_blank" class="card-title">
+          Asesmen Formatif
+        </a>
+      </div>
+    </div>
+
+    <!-- Refleksi Siswa -->
+    <div class="card">
+      <img src="assets/images/RefleksiSiswa.png" alt="QR Code Refleksi Siswa" class="qr-image" onclick="showImage(this.src)">
+      <div class="card-body">
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLScltlnO2mdP7NB5BPvZL0zQsDDYbYQncUsybc6yNMORRb9egw/viewform " target="_blank" class="card-title">
+          Refleksi Siswa
+        </a>
+      </div>
+    </div>
+
+    <!-- Web Regresi -->
+    <div class="card">
+      <img src="assets/images/WEBAnalisisRegresi Linear.png" alt="QR Code WEB Analisis Regresi" class="qr-image" onclick="showImage(this.src)">
+      <div class="card-body">
+        <a href="https://regresi-am.netlify.app " target="_blank" class="card-title">
+          Web Analisis Regresi
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Logout Button -->
+  <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<!-- Fullscreen Overlay -->
+<div class="overlay" id="imageOverlay" onclick="closeImage()">
+  <span class="close-btn" onclick="closeImage()">&times;</span>
+  <img id="overlayImage" src="" alt="QR Code Besar">
+</div>
+
+<script>
+  let countdownInterval = null;
+  let isDragging = false;
+  let offsetX = 0, offsetY = 0;
+  let currentX = 0, currentY = 0;
+
+  const countdownBox = document.getElementById('countdownBox');
+
+  function updatePosition() {
+    countdownBox.style.left = `${currentX}px`;
+    countdownBox.style.top = `${currentY}px`;
+  }
+
+  function onMouseDown(e) {
+    isDragging = true;
+    offsetX = e.clientX - currentX;
+    offsetY = e.clientY - currentY;
+    countdownBox.classList.add('dragging');
+  }
+
+  function onMouseMove(e) {
+    if (!isDragging) return;
+    currentX = e.clientX - offsetX;
+    currentY = e.clientY - offsetY;
+    updatePosition();
+  }
+
+  function onMouseUp() {
+    isDragging = false;
+    countdownBox.classList.remove('dragging');
+    localStorage.setItem('timerPosition', JSON.stringify({ x: currentX, y: currentY }));
+  }
+
+  // Touch Events
+  countdownBox.addEventListener('touchstart', (e) => {
+    const touch = e.touches[0];
+    isDragging = true;
+    offsetX = touch.clientX - currentX;
+    offsetY = touch.clientY - currentY;
+    countdownBox.classList.add('dragging');
+  });
+
+  document.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    const touch = e.touches[0];
+    currentX = touch.clientX - offsetX;
+    currentY = touch.clientY - offsetY;
+    updatePosition();
+  });
+
+  document.addEventListener('touchend', () => {
+    isDragging = false;
+    countdownBox.classList.remove('dragging');
+    localStorage.setItem('timerPosition', JSON.stringify({ x: currentX, y: currentY }));
+  });
+
+  // Event Listeners
+  countdownBox.addEventListener('mousedown', onMouseDown);
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+
+  window.onload = () => {
+    const savedPos = localStorage.getItem('timerPosition');
+    if (savedPos) {
+      const { x, y } = JSON.parse(savedPos);
+      currentX = x;
+      currentY = y;
+    } else {
+      currentX = window.innerWidth - 260;
+      currentY = 20;
+    }
+    updatePosition();
+
+    const endTime = localStorage.getItem('countdownEnd');
+    if (endTime) {
+      updateCountdown();
+      countdownInterval = setInterval(updateCountdown, 1000);
+    } else {
+      document.getElementById('countdownTime').textContent = "00:00";
+    }
+  };
+
+  function startCountdown() {
+    const minutes = parseInt(document.getElementById('duration').value);
+    if (isNaN(minutes) || minutes <= 0) return alert("Masukkan durasi yang valid!");
+    const endTime = Date.now() + minutes * 60 * 1000;
+    localStorage.setItem('countdownEnd', endTime);
+    clearInterval(countdownInterval);
+    updateCountdown();
+    countdownInterval = setInterval(updateCountdown, 1000);
+  }
+
+  function pauseCountdown() {
+    clearInterval(countdownInterval);
+  }
+
+  function stopCountdown() {
+    clearInterval(countdownInterval);
+    document.getElementById('countdownTime').textContent = "00:00";
+    localStorage.removeItem('countdownEnd');
+  }
+
+  function updateCountdown() {
+    const timerEl = document.getElementById('countdownTime');
+    const endTime = parseInt(localStorage.getItem('countdownEnd'));
+    if (!endTime) {
+      timerEl.textContent = "00:00";
+      return;
+    }
+    const now = Date.now();
+    const remaining = endTime - now;
+    if (remaining <= 0) {
+      clearInterval(countdownInterval);
+      timerEl.textContent = "Selesai";
+      return;
+    }
+    const minutes = Math.floor(remaining / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
+    timerEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
+
+  function showImage(src) {
+    const overlay = document.getElementById('imageOverlay');
+    const img = document.getElementById('overlayImage');
+    img.src = src;
+    overlay.classList.add('active');
+  }
+
+  function closeImage() {
+    const overlay = document.getElementById('imageOverlay');
+    overlay.classList.remove('active');
+    document.getElementById('overlayImage').src = '';
+  }
+
+  function logout() {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('countdownEnd');
+    localStorage.removeItem('timerPosition');
+    window.location.href = 'index.html';
+  }
+</script>
+
+</body>
+</html>
