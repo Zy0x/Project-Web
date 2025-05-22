@@ -247,23 +247,31 @@
         }
     };
 
-    function verifyPassword(event) {
-        event.preventDefault(); // Mencegah reload halaman
+  function verifyPassword(event) {
+    event.preventDefault();
 
-        const username = document.getElementById('username').value.trim().toLowerCase();
-        const password = document.getElementById('passwordKu').value;
+    const username = document.getElementById('username').value.trim().toLowerCase();
+    const password = document.getElementById('passwordKu').value;
 
-        if (username === 'admin' && password === '@admin01') {
-            // Login sebagai admin, arahkan ke admin.html
-            window.location.href = 'admin.html';
-        } else if (password === 'JUJUR') {
-            // Login sebagai user biasa
-            localStorage.setItem('isLoggedIn', 'true');
-            window.location.href = 'kalkulator.html';
-        } else {
-            document.getElementById('error-message').innerText = 'Password atau Username salah!';
-        }
+    // Kosongkan pesan error
+    document.getElementById('error-message').innerText = '';
+
+    if (username === 'admin' && password === '@admin01') {
+      // Login sebagai admin
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('userRole', 'admin'); // Simpan role
+      localStorage.setItem('lastUsername', username); // Simpan username
+      window.location.href = 'admin.html';
+    } else if (password === 'JUJUR') {
+      // Login sebagai user
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('userRole', 'user'); // Simpan role
+      localStorage.setItem('lastUsername', username); // Simpan username
+      window.location.href = 'kalkulator.html';
+    } else {
+      document.getElementById('error-message').innerText = 'Password atau Username salah!';
     }
+  }
 </script>
 
 </body>
