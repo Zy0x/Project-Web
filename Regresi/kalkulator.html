@@ -387,13 +387,15 @@
         </small>
         <label for="decimal">Jumlah Angka di Belakang Koma</label>
         <input type="number" id="decimal" min="0" />
-        <small style="color: #666; font-size: 0.7em;">*Kosongkan jika ingin menampilkan seluruh angka di belakang koma</small>
+        <small id="warning-decimal" style="color: #666; font-size: 0.7em;">*Kosongkan jika ingin menampilkan seluruh angka di belakang koma</small>
+        <div id="error-decimal" style="display: none; color: red; font-size: 0.9em; margin-top: 5px;"></div>
         <label for="varX">Nama Variabel X</label>
         <input type="text" id="varX" placeholder="Contoh: Jumlah Jam Belajar" required />
         <small style="color: #666; font-size: 0.7em;">*Variabel yang mempengaruhi</small>
         <label for="varY">Nama Variabel Y</label>
         <input type="text" id="varY" placeholder="Contoh: Nilai Ujian" required />
         <small style="color: #666; font-size: 0.7em;">*Variabel yang dipengaruhi</small>
+        <button id="reset-btn" style="display: none; margin-top: 10px;" onclick="resetForm()">Reset Tabel</button>
         <div id="action-buttons"></div>
         <div id="data-input"></div>
         <button id="calculate-btn" style="display: none;" onclick="calculateRegression()">Hitung</button>
@@ -414,145 +416,44 @@
         localStorage.removeItem('isLoggedIn');
         window.location.href = 'login.html';
     }
+    function debounce(func, delay) {
+        let timer;
+        return function (...args) {
+            clearTimeout(timer);
+            timer = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
     function setupEnterNavigation() {
-        const fields = ['n', 'decimal', 'varX', 'varY'];
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('keydown', debounce((e) => {
+                const id = e.target.id;
+                const match = id.match(/([xy])(\d+)/);
+                if (!match || e.key !== 'Enter') return;
+                e.preventDefault();
 
-        // Fokus awal ke field pertama
-        document.getElementById('n')?.focus();
+                const type = match[1];
+                const num = parseInt(match[2]);
+                const max = parseInt(document.getElementById('n').value);
 
-        // Validasi n saat Enter ditekan
-        fields.forEach((id, index) => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.addEventListener('keydown', function(event) {
-                    if (event.key === 'Enter') {
-                        event.preventDefault(); // Cegah submit form
-
-                        // Validasi khusus field 'n'
-                        if (id === 'n') {
-                            const nValue = parseInt(element.value);
-                            const container = element.parentNode;
-                            const existingError = document.getElementById('error-n');
-
-                            if (isNaN(nValue) || nValue < 2) {
-                                if (!existingError) {
-                                    const errorMsg = document.createElement('div');
-                                    errorMsg.id = 'error-n';
-                                    errorMsg.style.color = 'red';
-                                    errorMsg.style.fontSize = '0.9em';
-                                    errorMsg.style.marginTop = '5px';
-                                    errorMsg.innerText = 'Minimal data yang diperlukan adalah 2.';
-                                    container.appendChild(errorMsg);
-                                }
-                                return; // Jangan lanjut jika invalid
-                            } else {
-                                if (existingError) existingError.remove();
-                            }
-                        }
-
-                        // Lanjutkan ke field berikutnya
-                        if (index < fields.length - 1) {
-                            const nextField = document.getElementById(fields[index + 1]);
-                            if (nextField) {
-                                nextField.focus();
-                            }
-                        } else {
-                            generateInputTable();
-                            setTimeout(() => {
-                                const firstX = document.getElementById('x1');
-                                if (firstX) firstX.focus();
-                            }, 0);
-                        }
+                if (type === 'x') {
+                    const nextX = document.getElementById(`x${num + 1}`);
+                    if (nextX) {
+                        nextX.focus();
+                    } else {
+                        const firstY = document.getElementById('y1');
+                        if (firstY) firstY.focus();
                     }
-                });
-
-                // Tambahkan validasi tambahan saat user meninggalkan field 'n'
-                element.addEventListener('blur', function () {
-                    if (id === 'n') {
-                        const nValue = parseInt(element.value);
-                        const container = element.parentNode;
-                        const existingError = document.getElementById('error-n');
-
-                        if (isNaN(nValue) || nValue < 2) {
-                            if (!existingError) {
-                                const errorMsg = document.createElement('div');
-                                errorMsg.id = 'error-n';
-                                errorMsg.style.color = 'red';
-                                errorMsg.style.fontSize = '0.9em';
-                                errorMsg.style.marginTop = '5px';
-                                errorMsg.innerText = 'Minimal data yang diperlukan adalah 2.';
-                                container.appendChild(errorMsg);
-                            }
-                        } else {
-                            if (existingError) existingError.remove();
-                        }
+                } else if (type === 'y') {
+                    const nextY = document.getElementById(`y${num + 1}`);
+                    if (nextY) {
+                        nextY.focus();
+                    } else {
+                        calculateRegression(); // Hitung hanya sekali saat Enter di akhir
                     }
-                });
-            }
-        });
-
-        // Navigasi untuk tabel input x/y
-        document.addEventListener('keydown', function(e) {
-            const id = e.target.id;
-            const match = id.match(/^(x|y)(\d+)$/);
-            if (!match || e.key !== 'Enter') return;
-            e.preventDefault(); // Cegah submit
-            const type = match[1];
-            const num = parseInt(match[2]);
-            const max = parseInt(document.getElementById('n').value);
-
-            if (type === 'x') {
-                const nextX = document.getElementById(`x${num + 1}`);
-                if (nextX) {
-                    nextX.focus();
-                } else {
-                    const firstY = document.getElementById('y1');
-                    if (firstY) firstY.focus();
                 }
-            } else if (type === 'y') {
-                const nextY = document.getElementById(`y${num + 1}`);
-                if (nextY) {
-                    nextY.focus();
-                } else {
-                    // Jika sudah di input terakhir Yn, jalankan hitung otomatis
-                    calculateRegression();
-                }
-            }
+            }, 200)); // Delay 200ms
         });
-    }
-    function setupAutoRefreshButton() {
-        const nInput = document.getElementById('n');
-        const varXInput = document.getElementById('varX');
-        const varYInput = document.getElementById('varY');
-        const buttonContainer = document.getElementById('action-buttons');
-
-        function createRefreshButton() {
-            let btn = document.createElement('button');
-            btn.textContent = 'Refresh Tabel';
-            btn.style.marginTop = '20px';
-            btn.onclick = () => generateInputTable();
-            return btn;
-        }
-
-        function checkInputChange() {
-            const oldBtn = document.getElementById('refresh-btn');
-            if (oldBtn) oldBtn.remove();
-
-            const n = parseInt(document.getElementById('n').value);
-            if (n >= 2) {
-                const refreshBtn = createRefreshButton();
-                refreshBtn.id = 'refresh-btn';
-                buttonContainer.appendChild(refreshBtn);
-            }
-        }
-
-        [nInput, varXInput, varYInput].forEach(input => {
-            input.addEventListener('input', checkInputChange);
-        });
-
-        // Panggil sekali saat halaman dimuat
-        checkInputChange();
-    }
+    };
     function autoGenerateInputTable() {
         const nInput = document.getElementById('n');
         const varXInput = document.getElementById('varX');
@@ -654,30 +555,30 @@
     }
     function formatNumber(num, decimal) {
         let number = parseFloat(num);
-        if (isNaN(number)) return '';
 
-        // Jika decimal tidak ditentukan atau negatif, gunakan semua desimal valid tanpa pembulatan
+        // Jika num NaN atau invalid, kembalikan 0 atau sesuai preferensi
+        if (isNaN(number)) return '0';
+
+        // Jika decimal tidak ditentukan atau negatif, gunakan semua desimal tanpa pembulatan
         if (isNaN(decimal) || decimal === null || decimal < 0) {
             return number.toString().replace('.', ',');
         }
 
         // Bulatkan ke jumlah desimal yang diminta
         let fixedStr = number.toFixed(decimal);
-
-        // Hapus nol di akhir setelah koma dan koma itu sendiri jika tidak ada angka di depannya
         let parts = fixedStr.split('.');
-        let integerPart = parts[0];
-        let decimalPart = parts[1];
+        let integerPart = parts[0] || '0';
+        let decimalPart = parts[1] || '';
 
         // Hapus nol di akhir
         decimalPart = decimalPart.replace(/0+$/, '');
 
-        // Jika decimalPart kosong setelah dihapus, kembalikan hanya integer
+        // Jika tidak ada angka desimal, kembalikan hanya bagian bulat
         if (decimalPart === '') {
-            return integerPart.replace(/^(-?\d+)(\.0+)?$/, '$1').replace('.', ',');
+            return integerPart;
         }
 
-        // Gabungkan kembali
+        // Gabungkan dan ganti titik dengan koma
         return `${integerPart},${decimalPart}`;
     }
 
@@ -901,7 +802,26 @@
 
         renderRegressionChart(xValues, yValues, a, b);
     }
+    function checkAllFieldsFilled() {
+        const n = parseInt(document.getElementById('n').value);
+        let allFilled = true;
 
+        for (let i = 1; i <= n; i++) {
+            const xVal = document.getElementById(`x${i}`).value.trim();
+            const yVal = document.getElementById(`y${i}`).value.trim();
+            if (xVal === '' || yVal === '') {
+                allFilled = false;
+                break;
+            }
+        }
+
+        const calculateBtn = document.getElementById('calculate-btn');
+        if (allFilled) {
+            calculateBtn.style.display = 'inline-block';
+        } else {
+            calculateBtn.style.display = 'none';
+        }
+    }
     function showPenyelesaian() {
         const penyelesaianDiv = document.getElementById('penyelesaian');
         const toggleBtn = document.getElementById('show-steps-btn');
@@ -915,6 +835,109 @@
         }
     }
 
+    function setupAutoCalculateOnDecimalChange() {
+        const decimalInput = document.getElementById('decimal');
+
+        function handleDecimalChange() {
+            const decimalValue = decimalInput.value.trim();
+
+            // Hapus error/warning lama
+            const errorDiv = document.getElementById('error-decimal');
+            const warningDiv = document.getElementById('warning-decimal');
+            errorDiv.style.display = 'none';
+            warningDiv.style.display = 'block';
+
+            if (!decimalValue) return;
+
+            const parsedDecimal = parseInt(decimalValue);
+
+            if (parsedDecimal < 0) {
+                errorDiv.textContent = 'Tidak boleh kurang dari 0.';
+                errorDiv.style.color = 'red';
+                errorDiv.style.display = 'block';
+                warningDiv.style.display = 'none';
+            } else if (parsedDecimal === 0) {
+                warningDiv.textContent = 'Menggunakan 0 angka di belakang koma dapat mempengaruhi keakuratan hasil.';
+                warningDiv.style.color = '#e67e22'; // warna kuning/oranye
+                warningDiv.style.backgroundColor = '#fff9c4';
+                warningDiv.style.padding = '5px';
+                warningDiv.style.borderRadius = '4px';
+                warningDiv.style.display = 'block';
+            } else {
+                warningDiv.textContent = '*Kosongkan jika ingin menampilkan seluruh angka di belakang koma';
+                warningDiv.style.color = '#666';
+                warningDiv.style.backgroundColor = 'transparent';
+                warningDiv.style.padding = '';
+                warningDiv.style.borderRadius = '';
+            }
+
+            // Cek apakah semua input X dan Y terisi
+            const n = parseInt(document.getElementById('n').value);
+            let allFilled = true;
+            for (let i = 1; i <= n; i++) {
+                const xVal = document.getElementById(`x${i}`).value.trim();
+                const yVal = document.getElementById(`y${i}`).value.trim();
+                if (xVal === '' || yVal === '') {
+                    allFilled = false;
+                    break;
+                }
+            }
+
+            if (allFilled && !isNaN(parsedDecimal) && parsedDecimal >= 0) {
+                calculateRegression(); // Hitung ulang otomatis
+            }
+        }
+
+        decimalInput.addEventListener('input', handleDecimalChange);
+    }
+    document.getElementById('decimal').addEventListener('input', debounce(function () {
+        const decimalInput = this.value.trim();
+        const errorDiv = document.getElementById('error-decimal');
+        const warningDiv = document.getElementById('warning-decimal');
+
+        errorDiv.style.display = 'none';
+        warningDiv.style.display = 'block';
+
+        if (!decimalInput) return;
+
+        const decimalValue = parseInt(decimalInput);
+
+        if (decimalValue < 0) {
+            errorDiv.textContent = 'Tidak boleh kurang dari 0.';
+            errorDiv.style.color = 'red';
+            errorDiv.style.display = 'block';
+            warningDiv.style.display = 'none';
+        } else if (decimalValue === 0) {
+            warningDiv.textContent = 'Menggunakan 0 angka di belakang koma dapat mempengaruhi keakuratan hasil.';
+            warningDiv.style.color = '#e67e22';
+            warningDiv.style.padding = '5px';
+            warningDiv.style.borderRadius = '4px';
+            warningDiv.style.display = 'block';
+        } else {
+            warningDiv.textContent = '*Kosongkan jika ingin menampilkan seluruh angka di belakang koma';
+            warningDiv.style.color = '#666';
+            warningDiv.style.backgroundColor = 'transparent';
+            warningDiv.style.padding = '';
+            warningDiv.style.borderRadius = '';
+        }
+
+        // Cek apakah semua data X dan Y terisi
+        const n = parseInt(document.getElementById('n').value);
+        let allFilled = true;
+        for (let i = 1; i <= n; i++) {
+            const xVal = document.getElementById(`x${i}`).value.trim();
+            const yVal = document.getElementById(`y${i}`).value.trim();
+            if (xVal === '' || yVal === '') {
+                allFilled = false;
+                break;
+            }
+        }
+
+        if (allFilled && !isNaN(decimalValue) && decimalValue >= 0) {
+            calculateRegression(); // Hitung ulang otomatis
+        }
+
+    }, 300));
     function renderRegressionChart(xValues, yValues, a, b) {
         const ctx = document.getElementById('regression-chart').getContext('2d');
 
@@ -984,13 +1007,81 @@
         }
     });
 
+    function setupResetButtonVisibility() {
+        const resetBtn = document.getElementById('reset-btn');
+
+        // Fungsi pengecekan apakah ada input x/y terisi
+        function checkIfInputsFilled() {
+            const n = parseInt(document.getElementById('n').value);
+            if (isNaN(n) || n < 2) return;
+
+            for (let i = 1; i <= n; i++) {
+                const xVal = document.getElementById(`x${i}`)?.value.trim();
+                const yVal = document.getElementById(`y${i}`)?.value.trim();
+                if (xVal !== '' || yVal !== '') {
+                    resetBtn.style.display = 'inline-block';
+                    return;
+                }
+            }
+
+            // Jika belum ada yang terisi, sembunyikan tombol
+            resetBtn.style.display = 'none';
+        }
+
+        // Pasang event listener ke semua input tabel
+        document.getElementById('data-input').addEventListener('input', debounce(checkIfInputsFilled, 200));
+    }
+
+    // Panggil fungsi ini saat DOM dimuat
     window.addEventListener('DOMContentLoaded', () => {
         setupEnterNavigation();
-        setupAutoRefreshButton();
-        autoGenerateInputTable(); // Tambahkan baris ini
-        document.getElementById('n').addEventListener('input', function () {
-            validateAndGenerate(); // Validasi dan generate otomatis saat input berubah
-        });
+        autoGenerateInputTable();
+        setupAutoCalculateOnDecimalChange();
+        setupResetButtonVisibility(); // 🔥 Tambahkan baris ini
+
+        document.getElementById('n').addEventListener('input', debounce(function () {
+            validateAndGenerate();
+        }, 300));
+    });
+
+    function resetForm() {
+        const confirmation = confirm("Anda yakin ingin mereset tabel? Semua data input akan hilang.");
+        if (!confirmation) return;
+
+        // Ambil jumlah data saat ini
+        const n = parseInt(document.getElementById('n').value);
+        if (isNaN(n) || n < 2) return;
+
+        // Kosongkan semua input X dan Y
+        for (let i = 1; i <= n; i++) {
+            const xInput = document.getElementById(`x${i}`);
+            const yInput = document.getElementById(`y${i}`);
+            if (xInput) xInput.value = '';
+            if (yInput) yInput.value = '';
+        }
+
+        // Hapus hasil regresi jika ada
+        const resultContainer = document.getElementById('results');
+        if (resultContainer) resultContainer.innerHTML = '';
+
+        // Hapus chart jika ada
+        if (window.regressionChartInstance) {
+            window.regressionChartInstance.destroy();
+            delete window.regressionChartInstance;
+        }
+
+        // Cek ulang apakah semua field terisi
+        checkAllFieldsFilled(); // ⬅️ PENTING: Ini memicu tombol hitung muncul kembali jika sesuai
+    };
+
+    // Panggil fungsi ini saat DOM dimuat
+    window.addEventListener('DOMContentLoaded', () => {
+        setupEnterNavigation();
+        autoGenerateInputTable();
+        setupAutoCalculateOnDecimalChange(); // Tambahkan baris ini
+        document.getElementById('n').addEventListener('input', debounce(function () {
+            validateAndGenerate();
+        }, 300)); // Delay 300ms
     });
 </script>
 </body>
