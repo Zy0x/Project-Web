@@ -756,8 +756,33 @@
                 <details class="step-card" ${stepOpenStatus(3)}>
                     <summary class="step-header">3. Menghitung Koefisien Regresi (b dan a)<span class="icon-arrow"> ➤</span></summary>
                     <div class="step-content">
-                        <p>\\[ b = \\frac{SS_{xy}}{SS_{xx}} = \\frac{${formatNumber(ssxy, decimal)}}{${formatNumber(ssxx, decimal)}} = ${formatNumber(b, decimal)} \\]</p>
-                        <p>\\[ a = \\bar{Y} - b\\bar{X} = ${formatNumber(yBar, decimal)} - (${formatNumber(b, decimal)} \\times ${formatNumber(xBar, decimal)}) = ${formatNumber(a, decimal)} \\]</p>
+                        <!-- Rumus Koefisien Regresi b -->
+                        <p><strong>\\( b = \\frac{SS_{xy}}{SS_{xx}} = \\frac{${formatNumber(ssxy, decimal)}}{${formatNumber(ssxx, decimal)}} = ${formatNumber(b, decimal)} \\)</strong></p>
+
+                        <!-- PENJELASAN NILAI b -->
+                        <div style="margin:20px 0; padding:15px; border-left:5px solid #007bff; background:#f8f9fa; border-radius:4px;">
+                            <h4 style="color:#007bff; margin-top:0;">Apa itu Nilai <strong>b</strong>?</h4>
+                            <ul style="padding-left: 0; list-style: none; line-height:1.6; margin:0;">
+                                <p style="margin:0; padding:0 0 8px 0;"><strong>Nilai b = ${formatNumber(b, decimal)}</strong></p>
+                                <p style="margin:0; padding:0 0 8px 0;">Artinya, setiap peningkatan 1 satuan pada <em>${varX}</em>, maka nilai <em>${varY}</em> akan berubah sebesar <strong>${formatNumber(b, decimal)}</strong>.</p>
+                                <li style="margin:0; padding:0 0 8px 20px;">Jika <strong>b positif (+)</strong>, semakin besar X (<em>${varX}</em>) → Y (<em>${varY}</em>) juga semakin besar.</li>
+                                <li style="margin:0; padding:0 0 8px 20px;">Jika <strong>b negatif (−)</strong>, semakin besar X (<em>${varX}</em>) → Y (<em>${varY}</em>) malah semakin kecil.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Rumus Intersept a -->
+                        <p><strong>\\( a = \\bar{Y} - b\\bar{X} = ${formatNumber(yBar, decimal)} - (${formatNumber(b, decimal)} \\times ${formatNumber(xBar, decimal)}) = ${formatNumber(a, decimal)} \\)</strong></p>
+
+                        <!-- PENJELASAN NILAI a -->
+                        <div style="margin:20px 0; padding:15px; border-left:5px solid #28a745; background:#f8f9fa; border-radius:4px;">
+                            <h4 style="color:#28a745; margin-top:0;">Apa itu Nilai <strong>a</strong>?</h4>
+                            <ul style="padding-left: 0; line-height:1.6; margin:0;">
+                                <p style="margin:0; padding:0 0 8px 0;"><strong>Nilai a = ${formatNumber(a, decimal)}</strong></p>
+                                <p style="margin:0; padding:0 0 8px 0;">Nilai <strong>a</strong> merepresentasikan titik potong sumbu Y dari garis regresi, yaitu prediksi nilai Y (<em>${varY}</em>) ketika nilai X (<em>${varX}</em>) sama dengan nol.</p>
+                                <p style="margin:0; padding:0 0 8px 0;">Artinya, saat <em>${varX}</em> bernilai nol, maka perkiraan nilai <em>${varY}</em> adalah sekitar <strong>${formatNumber(a, decimal)}</strong>.</p>
+                                <p style="margin:0; padding:0 0 8px 0;"><strong>Catatan:</strong> Interpretasi ini hanya valid jika dalam konteks data, X=0 memiliki makna nyata (misalnya, jam belajar = 0).</p>
+                            </ul>
+                        </div>
                     </div>
                 </details>
                 <!-- LANGKAH 4 -->
