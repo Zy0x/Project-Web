@@ -774,6 +774,15 @@
                         <p>\\[ SS_{xx} = \\sum{(X - \\bar{X})^2} = ${xValues.map(x => `( ${formatNumber(x - xBar, decimal)} )^2`).join(' + ')} = ${formatNumber(ssxx, decimal)} \\]</p>
                         <p>\\[ SS_{yy} = \\sum{(Y - \\bar{Y})^2} = ${yValues.map(y => `( ${formatNumber(y - yBar, decimal)} )^2`).join(' + ')} = ${formatNumber(ssyy, decimal)} \\]</p>
                         <p>\\[ SS_{xy} = \\sum{(X - \\bar{X})(Y - \\bar{Y})} = ${xValues.map((x, i) => `( ${formatNumber(x - xBar, decimal)} )( ${formatNumber(yValues[i] - yBar, decimal)} )`).join(' + ')} = ${formatNumber(ssxy, decimal)} \\]</p>
+                        
+                        <div style="margin:20px 0; padding:15px; border-left:5px solid #007bff; background:#f8f9fa; border-radius:4px;">
+                            <h4 style="color:#007bff; margin-top:0;">Apa itu SSxx, SSyy, dan SSxy?</h4>
+                            <ul style="padding-left: 20px; list-style: none; line-height:1.6; margin:0;">
+                                <li><strong>SSxx</strong>: Selisih kuadrat antara nilai <em>X</em> dengan rata-rata <em>X</em>.</li>
+                                <li><strong>SSyy</strong>: Selisih kuadrat antara nilai <em>Y</em> dengan rata-rata <em>Y</em>.</li>
+                                <li><strong>SSxy</strong>: Selisih hasil perkalian simpangan <em>X</em> dan simpangan <em>Y</em>.</li>
+                            </ul>
+                        </div>
                     </div>
                 </details>
                 <!-- LANGKAH 3 -->
