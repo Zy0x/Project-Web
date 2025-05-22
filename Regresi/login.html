@@ -250,15 +250,18 @@
     function verifyPassword(event) {
         event.preventDefault(); // Mencegah reload halaman
 
+        const username = document.getElementById('username').value.trim().toLowerCase();
         const password = document.getElementById('passwordKu').value;
 
-        if (password === 'JUJUR') {
-            // Simpan status login ke localStorage
+        if (username === 'admin' && password === '@admin01') {
+            // Login sebagai admin, arahkan ke admin.html
+            window.location.href = 'admin.html';
+        } else if (password === 'JUJUR') {
+            // Login sebagai user biasa
             localStorage.setItem('isLoggedIn', 'true');
-            // Arahkan ke halaman kalkulator
             window.location.href = 'kalkulator.html';
         } else {
-            document.getElementById('error-message').innerText = 'Password salah!';
+            document.getElementById('error-message').innerText = 'Password atau Username salah!';
         }
     }
 </script>
