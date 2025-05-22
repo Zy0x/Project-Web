@@ -322,8 +322,21 @@
   let isDragging = false;
   let offsetX = 0, offsetY = 0;
   let currentX = 0, currentY = 0;
-
   const countdownBox = document.getElementById('countdownBox');
+  // Event Listeners
+  countdownBox.addEventListener('mousedown', onMouseDown);
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+
+  const isLoggedIn = localStorage.getItem('isLoggedIn');
+  const userRole = localStorage.getItem('userRole');
+
+  if (!isLoggedIn || isLoggedIn !== 'true' || userRole !== 'admin') {
+    window.location.href = 'index.html';
+  }
+
+  const username = localStorage.getItem('lastUsername') || 'Admin';
+  document.getElementById('usernameDisplay').innerText = `Halo, ${username}`;
 
   function updatePosition() {
     countdownBox.style.left = `${currentX}px`;
@@ -372,11 +385,6 @@
     countdownBox.classList.remove('dragging');
     localStorage.setItem('timerPosition', JSON.stringify({ x: currentX, y: currentY }));
   });
-
-  // Event Listeners
-  countdownBox.addEventListener('mousedown', onMouseDown);
-  document.addEventListener('mousemove', onMouseMove);
-  document.addEventListener('mouseup', onMouseUp);
 
   window.onload = () => {
     const savedPos = localStorage.getItem('timerPosition');
@@ -453,8 +461,9 @@
 
   function logout() {
     localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('countdownEnd');
-    localStorage.removeItem('timerPosition');
+    localStorage.removeItem('userRole'); // hapus role saja jika ada
+    localStorage.removeItem('lastUsername'); // opsional
+    // JANGAN hapus countdownEnd agar timer tetap jalan
     window.location.href = 'index.html';
   }
 </script>
